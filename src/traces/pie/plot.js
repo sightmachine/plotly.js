@@ -19,14 +19,16 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 var helpers = require('./helpers');
 var eventData = require('./event_data');
 
-function plot(gd, cdpie) {
+function plot(gd, cdModule, opts) {
+    var desiredType = (opts || {}).type || 'pie';
+
     var fullLayout = gd._fullLayout;
 
-    prerenderTitles(cdpie, gd);
-    scalePies(cdpie, fullLayout._size);
+    prerenderTitles(cdModule, gd);
+    scalePies(cdModule, fullLayout._size);
 
-    var pieGroups = Lib.makeTraceGroups(fullLayout._pielayer, cdpie, 'trace').each(function(cd) {
-        var pieGroup = d3.select(this);
+    var plotGroups = Lib.makeTraceGroups(fullLayout['_' + desiredType + 'layer'], cdModule, 'trace').each(function(cd) {
+        var plotGroup = d3.select(this);
         var cd0 = cd[0];
         var trace = cd0.trace;
 
@@ -34,9 +36,9 @@ function plot(gd, cdpie) {
 
         // TODO: miter might look better but can sometimes cause problems
         // maybe miter with a small-ish stroke-miterlimit?
-        pieGroup.attr('stroke-linejoin', 'round');
+        plotGroup.attr('stroke-linejoin', 'round');
 
-        pieGroup.each(function() {
+        plotGroup.each(function() {
             var slices = d3.select(this).selectAll('g.slice').data(cd);
 
             slices.enter().append('g')
@@ -245,7 +247,7 @@ function plot(gd, cdpie) {
     // I have no idea why we haven't seen this in other contexts. Also, sometimes
     // it gets the initial draw correct but on redraw it gets confused.
     setTimeout(function() {
-        pieGroups.selectAll('tspan').each(function() {
+        plotGroups.selectAll('tspan').each(function() {
             var s = d3.select(this);
             if(s.attr('dy')) s.attr('dy', s.attr('dy'));
         });
@@ -480,13 +482,13 @@ function determineInsideTextFont(trace, pt, layoutFont) {
     };
 }
 
-function prerenderTitles(cdpie, gd) {
+function prerenderTitles(cdModule, gd) {
     var fullLayout = gd._fullLayout;
 
     var cd0, trace;
     // Determine the width and height of the title for each pie.
-    for(var i = 0; i < cdpie.length; i++) {
-        cd0 = cdpie[i][0];
+    for(var i = 0; i < cdModule.length; i++) {
+        cd0 = cdModule[i][0];
         trace = cd0.trace;
 
         if(trace.title.text) {
@@ -782,15 +784,15 @@ function scootLabels(quadrants, trace) {
     }
 }
 
-function scalePies(cdpie, plotSize) {
+function scalePies(cdModule, plotSize) {
     var scaleGroups = [];
 
     var pieBoxWidth, pieBoxHeight, i, j, cd0, trace,
         maxPull, scaleGroup, minPxPerValUnit;
 
     // first figure out the center and maximum radius for each pie
-    for(i = 0; i < cdpie.length; i++) {
-        cd0 = cdpie[i][0];
+    for(i = 0; i < cdModule.length; i++) {
+        cd0 = cdModule[i][0];
         trace = cd0.trace;
 
         pieBoxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]);
@@ -820,16 +822,16 @@ function scalePies(cdpie, plotSize) {
         minPxPerValUnit = Infinity;
         scaleGroup = scaleGroups[j];
 
-        for(i = 0; i < cdpie.length; i++) {
-            cd0 = cdpie[i][0];
+        for(i = 0; i < cdModule.length; i++) {
+            cd0 = cdModule[i][0];
             if(cd0.trace.scalegroup === scaleGroup) {
                 minPxPerValUnit = Math.min(minPxPerValUnit,
                     cd0.r * cd0.r / cd0.vTotal);
             }
         }
 
-        for(i = 0; i < cdpie.length; i++) {
-            cd0 = cdpie[i][0];
+        for(i = 0; i < cdModule.length; i++) {
+            cd0 = cdModule[i][0];
             if(cd0.trace.scalegroup === scaleGroup) {
                 cd0.r = Math.sqrt(minPxPerValUnit * cd0.vTotal);
             }

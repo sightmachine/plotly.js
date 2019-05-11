@@ -11,6 +11,7 @@
 var Lib = require('../../lib');
 var attributes = require('./attributes');
 var handleDomainDefaults = require('../../plots/domain').defaults;
+var handleText = require('../bar/defaults').handleText;
 
 module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     function coerce(attr, dflt) {
@@ -53,24 +54,15 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('hovertemplate');
 
     if(textInfo && textInfo !== 'none') {
-        var textPosition = coerce('textposition');
-        var hasBoth = Array.isArray(textPosition) || textPosition === 'auto';
-        var hasInside = hasBoth || textPosition === 'inside';
-        var hasOutside = hasBoth || textPosition === 'outside';
-
-        if(hasInside || hasOutside) {
-            var dfltFont = coerceFont(coerce, 'textfont', layout.font);
-            if(hasInside) {
-                var insideTextFontDefault = Lib.extendFlat({}, dfltFont);
-                var isTraceTextfontColorSet = traceIn.textfont && traceIn.textfont.color;
-                var isColorInheritedFromLayoutFont = !isTraceTextfontColorSet;
-                if(isColorInheritedFromLayoutFont) {
-                    delete insideTextFontDefault.color;
-                }
-                coerceFont(coerce, 'insidetextfont', insideTextFontDefault);
-            }
-            if(hasOutside) coerceFont(coerce, 'outsidetextfont', dfltFont);
-        }
+        var textposition = coerce('textposition');
+        handleText(traceIn, traceOut, layout, coerce, textposition, {
+            moduleHasSelected: false,
+            moduleHasUnSelected: false,
+            moduleHasConstrain: false,
+            moduleHasCliponaxis: false,
+            moduleHasTextangle: false,
+            moduleHasInsideanchor: false
+        });
     }
 
     handleDomainDefaults(traceOut, layout, coerce);
