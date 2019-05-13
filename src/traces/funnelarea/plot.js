@@ -321,9 +321,8 @@ function attachFxHandlers(sliceTop, gd, cd) {
         // in case we dragged over the pie from another subplot,
         // or if hover is turned off
         if(trace2.hovertemplate || (hoverinfo !== 'none' && hoverinfo !== 'skip' && hoverinfo)) {
-            var rInscribed = pt.rInscribed;
-            var hoverCenterX = cx + pt.pxmid[0] * (1 - rInscribed);
-            var hoverCenterY = cy + pt.pxmid[1] * (1 - rInscribed);
+            var hoverCenterX = cx + pt.pxmid[0];
+            var hoverCenterY = cy + pt.pxmid[1];
             var separators = fullLayout2.separators;
             var thisText = [];
 
@@ -345,8 +344,8 @@ function attachFxHandlers(sliceTop, gd, cd) {
 
             Fx.loneHover({
                 trace: trace,
-                x0: hoverCenterX - rInscribed * cd0.r,
-                x1: hoverCenterX + rInscribed * cd0.r,
+                x0: hoverCenterX - cd0.r,
+                x1: hoverCenterX + cd0.r,
                 y: hoverCenterY,
                 text: thisText.join('<br>'),
                 name: (trace2.hovertemplate || hoverinfo.indexOf('name') !== -1) ? trace2.name : undefined,
@@ -492,7 +491,6 @@ function transformInsideText(textBB, pt, cd0) {
     var textAspect = textBB.width / textBB.height;
     var halfAngle = pt.halfangle;
     var ring = pt.ring;
-    var rInscribed = pt.rInscribed;
     var r = cd0.r || pt.rpx1;
 
     // max size text can be inserted inside without rotating it
@@ -500,10 +498,10 @@ function transformInsideText(textBB, pt, cd0) {
     // in the slice, so it will be an underestimate, which some day we may want
     // to improve so this case can get more use
     var transform = {
-        scale: rInscribed * r * 2 / textDiameter,
+        scale: r * 2 / textDiameter,
 
         // and the center position and rotation in this case
-        rCenter: 1 - rInscribed,
+        rCenter: 1,
         rotate: 0
     };
 
