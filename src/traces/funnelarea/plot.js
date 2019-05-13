@@ -515,7 +515,7 @@ function transformInsideText(textBB, pt, cd0) {
         scale: maxHalfHeightRotRadial * 2 / textBB.height,
         rCenter: Math.cos(maxHalfHeightRotRadial / r) -
             maxHalfHeightRotRadial * textAspect / r,
-        rotate: (180 / Math.PI * pt.midangle + 720) % 180 - 90
+        rotate: 0
     };
 
     // max size if text is rotated tangentially
@@ -529,7 +529,7 @@ function transformInsideText(textBB, pt, cd0) {
         scale: maxHalfWidthTangential * 2 / textBB.width,
         rCenter: Math.cos(maxHalfWidthTangential / r) -
             maxHalfWidthTangential / textAspect / r,
-        rotate: (180 / Math.PI * pt.midangle + 810) % 180 - 90
+        rotate: 0
     };
     // if we need a rotated transform, pick the biggest one
     // even if both are bigger than 1
@@ -806,14 +806,11 @@ function scaleFunnelareas(cdModule, plotSize) {
 }
 
 function setCoords(cd) {
-    var sumRatios = 0;
+    var sumSteps = 0;
 
     function getRatio() {
-        return Math.sqrt(sumRatios);
+        return Math.sqrt(sumSteps);
     }
-
-    var prevRatio = getRatio();
-    var nextRatio;
 
     var cd0 = cd[0];
     var totalValues = cd0.vTotal;
@@ -823,22 +820,17 @@ function setCoords(cd) {
         if(cdi.hidden) continue;
 
         var step = cdi.v / totalValues;
-        sumRatios += step;
+        sumSteps += step;
 
-        nextRatio = getRatio(sumRatios);
 
-        var q = cd0.r * nextRatio;
+        var x, y;
+        x = y = cd0.r * getRatio(sumSteps);
 
-        cdi.px0 = [-q, -q];
-        cdi.px1 = [q, -q];
+        cdi.px0 = [-x, -y];
+        cdi.px1 = [x, -y];
         cdi.pxmid = [
             0.5 * (cdi.px0[0] + cdi.px1[0]),
             0.5 * (cdi.px0[1] + cdi.px1[1])
         ];
-
-        cdi.midangle = (prevRatio + nextRatio) / 2;
-        cdi.rInscribed = 0;
-
-        prevRatio = nextRatio;
     }
 }
