@@ -12,7 +12,7 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 var helpers = require('../pie/helpers');
 var eventData = require('./event_data');
 
-function plot(gd, cdModule) {
+module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
     prerenderTitles(cdModule, gd);
@@ -83,36 +83,20 @@ function plot(gd, cdModule) {
                     return 'l' + dx + ',' + dy;
                 }
 
-                var hole = trace.hole;
                 if(pt.v === cd0.vTotal) { // 100% fails bcs arc start and end are identical
                     var outerCircle = 'M' + (cx + pt.px0[0]) + ',' + (cy + pt.px0[1]) +
                         arc(pt.px0, pt.pxmid, true, 1) +
                         arc(pt.pxmid, pt.px0, true, 1) + 'Z';
-                    if(hole) {
-                        slicePath.attr('d',
-                            'M' + (cx + hole * pt.px0[0]) + ',' + (cy + hole * pt.px0[1]) +
-                            arc(pt.px0, pt.pxmid, false, hole) +
-                            arc(pt.pxmid, pt.px0, false, hole) +
-                            'Z' + outerCircle);
-                    } else slicePath.attr('d', outerCircle);
+
+                    slicePath.attr('d', outerCircle);
                 } else {
                     var outerArc = arc(pt.px0, pt.px1, true, 1);
 
-                    if(hole) {
-                        var rim = 1 - hole;
-                        slicePath.attr('d',
-                            'M' + (cx + hole * pt.px1[0]) + ',' + (cy + hole * pt.px1[1]) +
-                            arc(pt.px1, pt.px0, false, hole) +
-                            'l' + (rim * pt.px0[0]) + ',' + (rim * pt.px0[1]) +
-                            outerArc +
-                            'Z');
-                    } else {
-                        slicePath.attr('d',
-                            'M' + cx + ',' + cy +
-                            'l' + pt.px0[0] + ',' + pt.px0[1] +
-                            outerArc +
-                            'Z');
-                    }
+                    slicePath.attr('d',
+                        'M' + cx + ',' + cy +
+                        'l' + pt.px0[0] + ',' + pt.px0[1] +
+                        outerArc +
+                        'Z');
                 }
 
                 // add text
@@ -244,7 +228,7 @@ function plot(gd, cdModule) {
             if(s.attr('dy')) s.attr('dy', s.attr('dy'));
         });
     }, 0);
-}
+};
 
 // TODO add support for transition
 function plotTextLines(slices, trace) {
@@ -560,12 +544,6 @@ function transformInsideText(textBB, pt, cd0) {
     return transform;
 }
 
-function getInscribedRadiusFraction(pt, cd0) {
-    if(pt.v === cd0.vTotal && !cd0.trace.hole) return 1;// special case of 100% with no hole
-
-    return Math.min(1 / (1 + 1 / Math.sin(pt.halfangle)), pt.ring / 2);
-}
-
 function transformOutsideText(textBB, pt) {
     var x = pt.pxmid[0];
     var y = pt.pxmid[1];
@@ -870,8 +848,3 @@ function setCoords(cd) {
         prevRatio = nextRatio;
     }
 }
-
-module.exports = {
-    plot: plot,
-    transformInsideText: transformInsideText
-};

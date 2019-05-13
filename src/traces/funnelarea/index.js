@@ -22,7 +22,7 @@ module.exports = {
     calc: require('./calc').calc,
     crossTraceCalc: require('./calc').crossTraceCalc,
 
-    plot: require('./plot').plot,
+    plot: require('./plot'),
     style: require('./style'),
     styleOne: require('../pie/style_one'),
 
