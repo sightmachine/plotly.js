@@ -489,7 +489,6 @@ function prerenderTitles(cdModule, gd) {
 function transformInsideText(textBB, pt, cd0) {
     var textDiameter = Math.sqrt(textBB.width * textBB.width + textBB.height * textBB.height);
     var textAspect = textBB.width / textBB.height;
-    var halfAngle = pt.halfangle;
     var r = cd0.r || pt.rpx1;
 
     // max size text can be inserted inside without rotating it
@@ -507,7 +506,7 @@ function transformInsideText(textBB, pt, cd0) {
     if(transform.scale >= 1) return transform;
 
     // max size if text is rotated radially
-    var Qr = textAspect + 1 / (2 * Math.tan(halfAngle));
+    var Qr = textAspect / 2;
     var maxHalfHeightRotRadial = r * Math.min(
         1 / (Math.sqrt(Qr * Qr + 0.5) + Qr),
         0
@@ -521,7 +520,7 @@ function transformInsideText(textBB, pt, cd0) {
 
     // max size if text is rotated tangentially
     var aspectInv = 1 / textAspect;
-    var Qt = aspectInv + 1 / (2 * Math.tan(halfAngle));
+    var Qt = aspectInv / 2;
     var maxHalfWidthTangential = r * Math.min(
         1 / (Math.sqrt(Qt * Qt + 0.5) + Qt),
         0
@@ -838,7 +837,6 @@ function setCoords(cd) {
         ];
 
         cdi.midangle = (prevRatio + nextRatio) / 2;
-        cdi.halfangle = 0;
         cdi.rInscribed = 0;
 
         prevRatio = nextRatio;
