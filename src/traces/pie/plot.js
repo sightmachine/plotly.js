@@ -19,25 +19,18 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 var helpers = require('./helpers');
 var eventData = require('./event_data');
 
-function plot(gd, cdModule, opts) {
-    var desiredType = (opts || {}).type || 'pie';
-
+function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
     prerenderTitles(cdModule, gd);
     scalePies(cdModule, fullLayout._size);
 
-    var plotGroups = Lib.makeTraceGroups(fullLayout['_' + desiredType + 'layer'], cdModule, 'trace').each(function(cd) {
+    var plotGroups = Lib.makeTraceGroups(fullLayout._pielayer, cdModule, 'trace').each(function(cd) {
         var plotGroup = d3.select(this);
         var cd0 = cd[0];
         var trace = cd0.trace;
-        var isFunnelarea = (trace.type === 'funnelarea');
 
-        if(isFunnelarea) {
-            setFunnelareaCoords(cd);
-        } else {
-            setPieCoords(cd);
-        }
+        setCoords(cd);
 
         // TODO: miter might look better but can sometimes cause problems
         // maybe miter with a small-ish stroke-miterlimit?
@@ -94,13 +87,9 @@ function plot(gd, cdModule, opts) {
                     var dx = scale * (finish[0] - start[0]);
                     var dy = scale * (finish[1] - start[1]);
 
-                    if(isFunnelarea) {
-                        return 'l' + dx + ',' + dy;
-                    } else { // case of 'pie'
-                        return 'a' +
-                            (scale * cd0.r) + ',' + (scale * cd0.r) + ' 0 ' +
-                            pt.largeArc + (cw ? ' 1 ' : ' 0 ') + dx + ',' + dy;
-                    }
+                    return 'a' +
+                        (scale * cd0.r) + ',' + (scale * cd0.r) + ' 0 ' +
+                        pt.largeArc + (cw ? ' 1 ' : ' 0 ') + dx + ',' + dy;
                 }
 
                 var hole = trace.hole;
@@ -851,7 +840,7 @@ function scalePies(cdModule, plotSize) {
     }
 }
 
-function setPieCoords(cd) {
+function setCoords(cd) {
     var cd0 = cd[0];
     var trace = cd0.trace;
     var currentAngle = trace.rotation * Math.PI / 180;
@@ -899,46 +888,6 @@ function setPieCoords(cd) {
         cdi.halfangle = Math.PI * Math.min(cdi.v / cd0.vTotal, 0.5);
         cdi.ring = 1 - trace.hole;
         cdi.rInscribed = getInscribedRadiusFraction(cdi, cd0);
-    }
-}
-
-function setFunnelareaCoords(cd) {
-    var sumRatios = 0;
-
-    function getRatio() {
-        return Math.sqrt(sumRatios);
-    }
-
-    var prevRatio = getRatio();
-    var nextRatio;
-
-    var cd0 = cd[0];
-    var totalValues = cd0.vTotal;
-
-    for(var i = cd.length - 1; i > -1; i--) {
-        var cdi = cd[i];
-        if(cdi.hidden) continue;
-
-        var step = cdi.v / totalValues;
-        sumRatios += step;
-
-        nextRatio = getRatio(sumRatios);
-
-        var q = cd0.r * nextRatio;
-
-        cdi.px0 = [-q, -q];
-        cdi.px1 = [q, -q];
-        cdi.pxmid = [
-            0.5 * (cdi.px0[0] + cdi.px1[0]),
-            0.5 * (cdi.px0[1] + cdi.px1[1])
-        ];
-
-        cdi.midangle = (prevRatio + nextRatio) / 2;
-        cdi.halfangle = 0;
-        cdi.ring = 0;
-        cdi.rInscribed = 0;
-
-        prevRatio = nextRatio;
     }
 }
 
