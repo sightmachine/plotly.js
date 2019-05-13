@@ -34,15 +34,15 @@ module.exports = {
     }),
 
     textinfo: extendFlat({}, pieAttrs.textinfo, {
-        flags: ['label', 'text', 'value', 'percent inital', 'percent total']
+        flags: ['label', 'text', 'value', 'percent initial', 'percent total']
     }),
 
     hoverinfo: extendFlat({}, plotAttrs.hoverinfo, {
-        flags: ['label', 'text', 'value', 'percent total', 'name'] // TODO: edit to be percent total/initial
+        flags: ['label', 'text', 'value', 'percent', 'name'] // TODO: edit to be percent total/initial
     }),
 
     hovertemplate: hovertemplateAttrs({}, {
-        keys: ['label', 'color', 'value', 'percent total', 'text'] // TODO: edit to be percent total/initial
+        keys: ['label', 'color', 'value', 'percent', 'text'] // TODO: edit to be percent total/initial
     }),
 
     textposition: pieAttrs.textposition,
@@ -55,15 +55,7 @@ module.exports = {
 
     domain: domainAttrs({name: 'funnelarea', trace: true, editType: 'calc'}),
 
-    hole: extendFlat({}, pieAttrs.hole, {
-        description: [
-            'Sets the fraction of the radius to cut out of the funnelarea.',
-            'Use this to make a rectangular shape at the end (funnel openning).'
-        ].join(' ')
-    }),
+    sort: extendFlat({}, pieAttrs.sort, { dflt: true }), // TODO: default to false?
 
-    sort: pieAttrs.sort,
-    direction: pieAttrs.direction,
-    rotation: pieAttrs.rotation, // TODO: we may remove this?
     pull: pieAttrs.pull // TODO: we may remove this?
 };

@@ -46,7 +46,6 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('marker.colors');
 
     coerce('scalegroup');
-    // TODO: hole needs to be coerced to the same value within a scaleegroup
 
     var textData = coerce('text');
     var textInfo = coerce('textinfo', Array.isArray(textData) ? 'text+percent total' : 'percent total'); // TODO: note this should be value not percent total!
@@ -67,17 +66,13 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
 
     handleDomainDefaults(traceOut, layout, coerce);
 
-    var hole = coerce('hole');
     var title = coerce('title.text');
     if(title) {
-        var titlePosition = coerce('title.position', hole ? 'middle center' : 'top center');
-        if(!hole && titlePosition === 'middle center') traceOut.title.position = 'top center';
+        coerce('title.position', 'top center');
         coerceFont(coerce, 'title.font', layout.font);
     }
 
     coerce('sort');
-    coerce('direction');
-    coerce('rotation');
 
     coerce('pull');
 };

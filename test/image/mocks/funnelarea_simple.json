@@ -1,18 +1,24 @@
 {
   "data": [
     {
+      "marker": {
+        "line": {
+          "color": ["#F00", "#FF0", "#0F0", "#0FF"],
+          "width": 3
+        }
+      },
       "values": [
-        1,
-        2,
-        3,
         4,
-        5
+        3,
+        2,
+        1
       ],
       "type": "funnelarea"
     }
   ],
   "layout": {
-    "height": 300,
-    "width": 400
+    "showlegend": true,
+    "height": 400,
+    "width": 600
   }
 }
