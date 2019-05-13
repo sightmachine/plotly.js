@@ -76,28 +76,18 @@ module.exports = function plot(gd, cdModule) {
                 pt.cxFinal = cx;
                 pt.cyFinal = cy;
 
-                function arc(start, finish, cw, scale) {
-                    var dx = scale * (finish[0] - start[0]);
-                    var dy = scale * (finish[1] - start[1]);
+                function line(start, finish) {
+                    var dx = finish[0] - start[0];
+                    var dy = finish[1] - start[1];
 
                     return 'l' + dx + ',' + dy;
                 }
 
-                if(pt.v === cd0.vTotal) { // 100% fails bcs arc start and end are identical
-                    var outerCircle = 'M' + (cx + pt.px0[0]) + ',' + (cy + pt.px0[1]) +
-                        arc(pt.px0, pt.pxmid, true, 1) +
-                        arc(pt.pxmid, pt.px0, true, 1) + 'Z';
-
-                    slicePath.attr('d', outerCircle);
-                } else {
-                    var outerArc = arc(pt.px0, pt.px1, true, 1);
-
-                    slicePath.attr('d',
-                        'M' + cx + ',' + cy +
-                        'l' + pt.px0[0] + ',' + pt.px0[1] +
-                        outerArc +
-                        'Z');
-                }
+                slicePath.attr('d',
+                    'M' + cx + ',' + cy +
+                    'l' + pt.px0[0] + ',' + pt.px0[1] +
+                    line(pt.px0, pt.px1) +
+                    'Z');
 
                 // add text
                 var textPosition = helpers.castOption(trace.textposition, pt.pts);
@@ -208,9 +198,6 @@ module.exports = function plot(gd, cdModule) {
                     (transform.scale < 1 ? ('scale(' + transform.scale + ')') : '') +
                     'translate(' + transform.tx + ',' + transform.ty + ')');
             });
-
-            // now make sure no labels overlap (at least within one pie)
-            if(hasOutsideText) scootLabels(quadrants, trace);
 
             plotTextLines(slices, trace);
         });
@@ -645,111 +632,6 @@ function getMaxPull(trace) {
     return maxPull;
 }
 
-function scootLabels(quadrants, trace) {
-    var xHalf, yHalf, equatorFirst, farthestX, farthestY,
-        xDiffSign, yDiffSign, thisQuad, oppositeQuad,
-        wholeSide, i, thisQuadOutside, firstOppositeOutsidePt;
-
-    function topFirst(a, b) { return a.pxmid[1] - b.pxmid[1]; }
-    function bottomFirst(a, b) { return b.pxmid[1] - a.pxmid[1]; }
-
-    function scootOneLabel(thisPt, prevPt) {
-        if(!prevPt) prevPt = {};
-
-        var prevOuterY = prevPt.labelExtraY + (yHalf ? prevPt.yLabelMax : prevPt.yLabelMin);
-        var thisInnerY = yHalf ? thisPt.yLabelMin : thisPt.yLabelMax;
-        var thisOuterY = yHalf ? thisPt.yLabelMax : thisPt.yLabelMin;
-        var thisSliceOuterY = thisPt.cyFinal + farthestY(thisPt.px0[1], thisPt.px1[1]);
-        var newExtraY = prevOuterY - thisInnerY;
-
-        var xBuffer, i, otherPt, otherOuterY, otherOuterX, newExtraX;
-
-        // make sure this label doesn't overlap other labels
-        // this *only* has us move these labels vertically
-        if(newExtraY * yDiffSign > 0) thisPt.labelExtraY = newExtraY;
-
-        // make sure this label doesn't overlap any slices
-        if(!Array.isArray(trace.pull)) return; // this can only happen with array pulls
-
-        for(i = 0; i < wholeSide.length; i++) {
-            otherPt = wholeSide[i];
-
-            // overlap can only happen if the other point is pulled more than this one
-            if(otherPt === thisPt || (
-                (helpers.castOption(trace.pull, thisPt.pts) || 0) >=
-                (helpers.castOption(trace.pull, otherPt.pts) || 0))
-            ) {
-                continue;
-            }
-
-            if((thisPt.pxmid[1] - otherPt.pxmid[1]) * yDiffSign > 0) {
-                // closer to the equator - by construction all of these happen first
-                // move the text vertically to get away from these slices
-                otherOuterY = otherPt.cyFinal + farthestY(otherPt.px0[1], otherPt.px1[1]);
-                newExtraY = otherOuterY - thisInnerY - thisPt.labelExtraY;
-
-                if(newExtraY * yDiffSign > 0) thisPt.labelExtraY += newExtraY;
-            } else if((thisOuterY + thisPt.labelExtraY - thisSliceOuterY) * yDiffSign > 0) {
-                // farther from the equator - happens after we've done all the
-                // vertical moving we're going to do
-                // move horizontally to get away from these more polar slices
-
-                // if we're moving horz. based on a slice that's several slices away from this one
-                // then we need some extra space for the lines to labels between them
-                xBuffer = 3 * xDiffSign * Math.abs(i - wholeSide.indexOf(thisPt));
-
-                otherOuterX = otherPt.cxFinal + farthestX(otherPt.px0[0], otherPt.px1[0]);
-                newExtraX = otherOuterX + xBuffer - (thisPt.cxFinal + thisPt.pxmid[0]) - thisPt.labelExtraX;
-
-                if(newExtraX * xDiffSign > 0) thisPt.labelExtraX += newExtraX;
-            }
-        }
-    }
-
-    for(yHalf = 0; yHalf < 2; yHalf++) {
-        equatorFirst = yHalf ? topFirst : bottomFirst;
-        farthestY = yHalf ? Math.max : Math.min;
-        yDiffSign = yHalf ? 1 : -1;
-
-        for(xHalf = 0; xHalf < 2; xHalf++) {
-            farthestX = xHalf ? Math.max : Math.min;
-            xDiffSign = xHalf ? 1 : -1;
-
-            // first sort the array
-            // note this is a copy of cd, so cd itself doesn't get sorted
-            // but we can still modify points in place.
-            thisQuad = quadrants[yHalf][xHalf];
-            thisQuad.sort(equatorFirst);
-
-            oppositeQuad = quadrants[1 - yHalf][xHalf];
-            wholeSide = oppositeQuad.concat(thisQuad);
-
-            thisQuadOutside = [];
-            for(i = 0; i < thisQuad.length; i++) {
-                if(thisQuad[i].yLabelMid !== undefined) thisQuadOutside.push(thisQuad[i]);
-            }
-
-            firstOppositeOutsidePt = false;
-            for(i = 0; yHalf && i < oppositeQuad.length; i++) {
-                if(oppositeQuad[i].yLabelMid !== undefined) {
-                    firstOppositeOutsidePt = oppositeQuad[i];
-                    break;
-                }
-            }
-
-            // each needs to avoid the previous
-            for(i = 0; i < thisQuadOutside.length; i++) {
-                var prevPt = i && thisQuadOutside[i - 1];
-                // bottom half needs to avoid the first label of the top half
-                // top half we still need to call scootOneLabel on the first slice
-                // so we can avoid other slices, but we don't pass a prevPt
-                if(firstOppositeOutsidePt && !i) prevPt = firstOppositeOutsidePt;
-                scootOneLabel(thisQuadOutside[i], prevPt);
-            }
-        }
-    }
-}
-
 function scaleFunnelareas(cdModule, plotSize) {
     var scaleGroups = [];
 
@@ -808,10 +690,6 @@ function scaleFunnelareas(cdModule, plotSize) {
 function setCoords(cd) {
     var sumSteps = 0;
 
-    function getRatio() {
-        return Math.sqrt(sumSteps);
-    }
-
     var cd0 = cd[0];
     var totalValues = cd0.vTotal;
 
@@ -822,15 +700,11 @@ function setCoords(cd) {
         var step = cdi.v / totalValues;
         sumSteps += step;
 
-
         var x, y;
-        x = y = cd0.r * getRatio(sumSteps);
+        x = y = cd0.r * Math.sqrt(sumSteps);
 
         cdi.px0 = [-x, -y];
         cdi.px1 = [x, -y];
-        cdi.pxmid = [
-            0.5 * (cdi.px0[0] + cdi.px1[0]),
-            0.5 * (cdi.px0[1] + cdi.px1[1])
-        ];
+        cdi.pxmid = [0, -y];
     }
 }
