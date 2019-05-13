@@ -490,7 +490,6 @@ function transformInsideText(textBB, pt, cd0) {
     var textDiameter = Math.sqrt(textBB.width * textBB.width + textBB.height * textBB.height);
     var textAspect = textBB.width / textBB.height;
     var halfAngle = pt.halfangle;
-    var ring = pt.ring;
     var r = cd0.r || pt.rpx1;
 
     // max size text can be inserted inside without rotating it
@@ -511,7 +510,7 @@ function transformInsideText(textBB, pt, cd0) {
     var Qr = textAspect + 1 / (2 * Math.tan(halfAngle));
     var maxHalfHeightRotRadial = r * Math.min(
         1 / (Math.sqrt(Qr * Qr + 0.5) + Qr),
-        ring / (Math.sqrt(textAspect * textAspect + ring / 2) + textAspect)
+        0
     );
     var radialTransform = {
         scale: maxHalfHeightRotRadial * 2 / textBB.height,
@@ -525,7 +524,7 @@ function transformInsideText(textBB, pt, cd0) {
     var Qt = aspectInv + 1 / (2 * Math.tan(halfAngle));
     var maxHalfWidthTangential = r * Math.min(
         1 / (Math.sqrt(Qt * Qt + 0.5) + Qt),
-        ring / (Math.sqrt(aspectInv * aspectInv + ring / 2) + aspectInv)
+        0
     );
     var tangentialTransform = {
         scale: maxHalfWidthTangential * 2 / textBB.width,
@@ -840,7 +839,6 @@ function setCoords(cd) {
 
         cdi.midangle = (prevRatio + nextRatio) / 2;
         cdi.halfangle = 0;
-        cdi.ring = 0;
         cdi.rInscribed = 0;
 
         prevRatio = nextRatio;
