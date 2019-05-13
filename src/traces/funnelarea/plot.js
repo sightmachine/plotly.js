@@ -12,6 +12,13 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 var helpers = require('../pie/helpers');
 var eventData = require('./event_data');
 
+function line(start, finish) {
+    var dx = finish[0] - start[0];
+    var dy = finish[1] - start[1];
+
+    return 'l' + dx + ',' + dy;
+}
+
 module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
@@ -40,7 +47,6 @@ module.exports = function plot(gd, cdModule) {
                 [[], []], // y<0: x<0, x>=0
                 [[], []] // y>=0: x<0, x>=0
             ];
-            var hasOutsideText = false;
 
             slices.each(function(pt) {
                 if(pt.hidden) {
@@ -75,13 +81,6 @@ module.exports = function plot(gd, cdModule) {
 
                 pt.cxFinal = cx;
                 pt.cyFinal = cy;
-
-                function line(start, finish) {
-                    var dx = finish[0] - start[0];
-                    var dy = finish[1] - start[1];
-
-                    return 'l' + dx + ',' + dy;
-                }
 
                 slicePath.attr('d',
                     'M' + cx + ',' + cy +
@@ -144,7 +143,6 @@ module.exports = function plot(gd, cdModule) {
                         pt.yLabelMax = translateY + textBB.height / 2;
                         pt.labelExtraX = 0;
                         pt.labelExtraY = 0;
-                        hasOutsideText = true;
                     }
 
                     sliceText.attr('transform',
