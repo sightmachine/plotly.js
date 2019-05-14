@@ -9,15 +9,6 @@
 'use strict';
 
 module.exports = {
-    /**
-     * hiddenlabels is the funnelarea chart analog of visible:'legendonly'
-     * but it can contain many labels, and can hide slices
-     * from several funnelareas simultaneously
-     */
-    hiddenlabels: {
-        valType: 'data_array',
-        editType: 'calc'
-    },
     funnelareacolorway: {
         valType: 'colorlist',
         role: 'style',

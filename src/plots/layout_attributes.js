@@ -270,6 +270,17 @@ module.exports = {
             'forked graphs from the plotly service (at https://plot.ly or on-premise).'
         ].join(' ')
     },
+    hiddenlabels: {
+        valType: 'data_array',
+        role: 'info',
+        editType: 'calc',
+        description: [
+            'hiddenlabels is the funnelarea & pie chart analog of',
+            'visible:\'legendonly\'',
+            'but it can contain many labels, and can simultaneously',
+            'hide slices from several pies/funnelarea charts'
+        ].join(' ')
+    },
     showlegend: {
         // handled in legend.supplyLayoutDefaults
         // but included here because it's not in the legend object

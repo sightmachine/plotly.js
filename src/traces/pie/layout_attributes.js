@@ -9,15 +9,6 @@
 'use strict';
 
 module.exports = {
-    /**
-     * hiddenlabels is the pie chart analog of visible:'legendonly'
-     * but it can contain many labels, and can hide slices
-     * from several pies simultaneously
-     */
-    hiddenlabels: {
-        valType: 'data_array',
-        editType: 'calc'
-    },
     piecolorway: {
         valType: 'colorlist',
         role: 'style',

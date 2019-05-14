@@ -1433,6 +1433,8 @@ plots.supplyLayoutGlobalDefaults = function(layoutIn, layoutOut, formatObj) {
     coerce('separators', formatObj.decimal + formatObj.thousands);
     coerce('hidesources');
 
+    coerce('hiddenlabels');
+
     coerce('colorway');
 
     coerce('datarevision');

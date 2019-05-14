@@ -12,7 +12,7 @@ module.exports = {
     moduleType: 'trace',
     name: 'funnelarea',
     basePlotModule: require('./base_plot'),
-    categories: ['pie-like', 'funnelarea', 'showLegend'],
+    categories: ['pie-like', 'funnelarea', 'showLegend', 'hiddenLabels'],
 
     attributes: require('./attributes'),
     layoutAttributes: require('./layout_attributes'),
