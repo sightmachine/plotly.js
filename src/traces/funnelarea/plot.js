@@ -11,21 +11,31 @@
 var d3 = require('d3');
 
 var Fx = require('../../components/fx');
-var Color = require('../../components/color');
 var Drawing = require('../../components/drawing');
 var Lib = require('../../lib');
 var svgTextUtils = require('../../lib/svg_text_utils');
 
-var helpers = require('../pie/helpers');
 var eventData = require('./event_data');
+
+var pieHelpers = require('../pie/helpers');
+var piePlot = require('../pie/plot');
+
+var positionTitleInside = piePlot.positionTitleInsid;
+var positionTitleOutside = piePlot.positionTitleOutside;
+
+var determineInsideTextFont = piePlot.determineInsideTextFont;
+var determineOutsideTextFont = piePlot.determineOutsideTextFont;
+
+var prerenderTitles = piePlot.prerenderTitles;
+var scalePies = piePlot.scalePies;
 
 module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
     prerenderTitles(cdModule, gd);
-    scaleFunnelareas(cdModule, fullLayout._size);
+    scalePies(cdModule, fullLayout._size);
 
-    var plotGroups = Lib.makeTraceGroups(fullLayout._funnelarealayer, cdModule, 'trace').each(function(cd) {
+    Lib.makeTraceGroups(fullLayout._funnelarealayer, cdModule, 'trace').each(function(cd) {
         var plotGroup = d3.select(this);
         var cd0 = cd[0];
         var trace = cd0.trace;
@@ -81,7 +91,7 @@ module.exports = function plot(gd, cdModule) {
                     'Z');
 
                 // add text
-                var textPosition = helpers.castOption(trace.textposition, pt.pts);
+                var textPosition = pieHelpers.castOption(trace.textposition, pt.pts);
                 var sliceTextGroup = sliceTop.selectAll('g.slicetext')
                     .data(pt.text && (textPosition !== 'none') ? [0] : []);
 
@@ -125,8 +135,8 @@ module.exports = function plot(gd, cdModule) {
                         }
                     }
 
-                    var translateX = cx + pt.pxmid[0] * transform.rCenter + (transform.x || 0);
-                    var translateY = cy + pt.pxmid[1] * transform.rCenter + (transform.y || 0);
+                    var translateX = cx + (transform.x || 0);
+                    var translateY = cy + (transform.y || 0) + pt.pxmid[1] - textBB.height / 2;
 
                     // save some stuff to use later ensure no labels overlap
                     if(transform.outside) {
@@ -188,75 +198,9 @@ module.exports = function plot(gd, cdModule) {
                     (transform.scale < 1 ? ('scale(' + transform.scale + ')') : '') +
                     'translate(' + transform.tx + ',' + transform.ty + ')');
             });
-
-            plotTextLines(slices, trace);
         });
     });
-
-    // This is for a bug in Chrome (as of 2015-07-22, and does not affect FF)
-    // if insidetextfont and outsidetextfont are different sizes, sometimes the size
-    // of an "em" gets taken from the wrong element at first so lines are
-    // spaced wrong. You just have to tell it to try again later and it gets fixed.
-    // I have no idea why we haven't seen this in other contexts. Also, sometimes
-    // it gets the initial draw correct but on redraw it gets confused.
-    setTimeout(function() {
-        plotGroups.selectAll('tspan').each(function() {
-            var s = d3.select(this);
-            if(s.attr('dy')) s.attr('dy', s.attr('dy'));
-        });
-    }, 0);
 };
-
-// TODO add support for transition
-function plotTextLines(slices, trace) {
-    slices.each(function(pt) {
-        var sliceTop = d3.select(this);
-
-        if(!pt.labelExtraX && !pt.labelExtraY) {
-            sliceTop.select('path.textline').remove();
-            return;
-        }
-
-        // first move the text to its new location
-        var sliceText = sliceTop.select('g.slicetext text');
-
-        sliceText.attr('transform', 'translate(' + pt.labelExtraX + ',' + pt.labelExtraY + ')' +
-            sliceText.attr('transform'));
-
-        // then add a line to the new location
-        var lineStartX = pt.cxFinal + pt.pxmid[0];
-        var lineStartY = pt.cyFinal + pt.pxmid[1];
-        var textLinePath = 'M' + lineStartX + ',' + lineStartY;
-        var finalX = (pt.yLabelMax - pt.yLabelMin) * (pt.pxmid[0] < 0 ? -1 : 1) / 4;
-
-        if(pt.labelExtraX) {
-            var yFromX = pt.labelExtraX * pt.pxmid[1] / pt.pxmid[0];
-            var yNet = pt.yLabelMid + pt.labelExtraY - (pt.cyFinal + pt.pxmid[1]);
-
-            if(Math.abs(yFromX) > Math.abs(yNet)) {
-                textLinePath +=
-                    'l' + (yNet * pt.pxmid[0] / pt.pxmid[1]) + ',' + yNet +
-                    'H' + (lineStartX + pt.labelExtraX + finalX);
-            } else {
-                textLinePath += 'l' + pt.labelExtraX + ',' + yFromX +
-                    'v' + (yNet - yFromX) +
-                    'h' + finalX;
-            }
-        } else {
-            textLinePath +=
-                'V' + (pt.yLabelMid + pt.labelExtraY) +
-                'h' + finalX;
-        }
-
-        Lib.ensureSingle(sliceTop, 'path', 'textline')
-            .call(Color.stroke, trace.outsidetextfont.color)
-            .attr({
-                'stroke-width': Math.min(2, trace.outsidetextfont.size / 8),
-                d: textLinePath,
-                fill: 'none'
-            });
-    });
-}
 
 function attachFxHandlers(sliceTop, gd, cd) {
     var cd0 = cd[0];
@@ -288,7 +232,7 @@ function attachFxHandlers(sliceTop, gd, cd) {
             // TODO: do we want to have Fx.castHoverinfo somehow handle this?
             // it already takes an array for index, for 2D, so this seems tricky.
             hoverinfo = Fx.castHoverinfo({
-                hoverinfo: [helpers.castOption(hoverinfo, pt.pts)],
+                hoverinfo: [pieHelpers.castOption(hoverinfo, pt.pts)],
                 _module: trace._module
             }, fullLayout2, 0);
         }
@@ -306,14 +250,14 @@ function attachFxHandlers(sliceTop, gd, cd) {
 
             if(hoverinfo && hoverinfo.indexOf('label') !== -1) text.push(pt.label);
 
-            pt.text = helpers.castOption(trace2.hovertext || trace2.text, pt.pts);
+            pt.text = pieHelpers.castOption(trace2.hovertext || trace2.text, pt.pts);
             if(hoverinfo && hoverinfo.indexOf('text') !== -1) {
                 tx = pt.text;
                 if(Lib.isValidTextValue(tx)) text.push(tx);
             }
 
             pt.value = pt.v;
-            pt.valueLabel = helpers.formatPieValue(pt.v, separators);
+            pt.valueLabel = pieHelpers.formatPieValue(pt.v, separators);
             if(hoverinfo && hoverinfo.indexOf('value') !== -1) text.push(pt.valueLabel);
 
             var nPercent = 0;
@@ -349,14 +293,14 @@ function attachFxHandlers(sliceTop, gd, cd) {
                 text: text.join('<br>'),
                 name: (trace2.hovertemplate || hoverinfo.indexOf('name') !== -1) ? trace2.name : undefined,
                 idealAlign: pt.pxmid[0] < 0 ? 'left' : 'right',
-                color: helpers.castOption(hoverLabel.bgcolor, pt.pts) || pt.color,
-                borderColor: helpers.castOption(hoverLabel.bordercolor, pt.pts),
-                fontFamily: helpers.castOption(hoverFont.family, pt.pts),
-                fontSize: helpers.castOption(hoverFont.size, pt.pts),
-                fontColor: helpers.castOption(hoverFont.color, pt.pts),
-                nameLength: helpers.castOption(hoverLabel.namelength, pt.pts),
-                textAlign: helpers.castOption(hoverLabel.align, pt.pts),
-                hovertemplate: helpers.castOption(trace2.hovertemplate, pt.pts),
+                color: pieHelpers.castOption(hoverLabel.bgcolor, pt.pts) || pt.color,
+                borderColor: pieHelpers.castOption(hoverLabel.bordercolor, pt.pts),
+                fontFamily: pieHelpers.castOption(hoverFont.family, pt.pts),
+                fontSize: pieHelpers.castOption(hoverFont.size, pt.pts),
+                fontColor: pieHelpers.castOption(hoverFont.color, pt.pts),
+                nameLength: pieHelpers.castOption(hoverLabel.namelength, pt.pts),
+                textAlign: pieHelpers.castOption(hoverLabel.align, pt.pts),
+                hovertemplate: pieHelpers.castOption(trace2.hovertemplate, pt.pts),
                 hovertemplateLabels: pt,
                 eventData: [eventData(pt, trace2)]
             }, {
@@ -411,131 +355,16 @@ function attachFxHandlers(sliceTop, gd, cd) {
     });
 }
 
-function determineOutsideTextFont(trace, pt, layoutFont) {
-    var color = helpers.castOption(trace.outsidetextfont.color, pt.pts) ||
-      helpers.castOption(trace.textfont.color, pt.pts) ||
-      layoutFont.color;
-
-    var family = helpers.castOption(trace.outsidetextfont.family, pt.pts) ||
-      helpers.castOption(trace.textfont.family, pt.pts) ||
-      layoutFont.family;
-
-    var size = helpers.castOption(trace.outsidetextfont.size, pt.pts) ||
-      helpers.castOption(trace.textfont.size, pt.pts) ||
-      layoutFont.size;
-
-    return {
-        color: color,
-        family: family,
-        size: size
-    };
-}
-
-function determineInsideTextFont(trace, pt, layoutFont) {
-    var customColor = helpers.castOption(trace.insidetextfont.color, pt.pts);
-    if(!customColor && trace._input.textfont) {
-        // Why not simply using trace.textfont? Because if not set, it
-        // defaults to layout.font which has a default color. But if
-        // textfont.color and insidetextfont.color don't supply a value,
-        // a contrasting color shall be used.
-        customColor = helpers.castOption(trace._input.textfont.color, pt.pts);
-    }
-
-    var family = helpers.castOption(trace.insidetextfont.family, pt.pts) ||
-      helpers.castOption(trace.textfont.family, pt.pts) ||
-      layoutFont.family;
-
-    var size = helpers.castOption(trace.insidetextfont.size, pt.pts) ||
-      helpers.castOption(trace.textfont.size, pt.pts) ||
-      layoutFont.size;
-
-    return {
-        color: customColor || Color.contrast(pt.color),
-        family: family,
-        size: size
-    };
-}
-
-function prerenderTitles(cdModule, gd) {
-    var fullLayout = gd._fullLayout;
-
-    var cd0, trace;
-    // Determine the width and height of the title for each pie.
-    for(var i = 0; i < cdModule.length; i++) {
-        cd0 = cdModule[i][0];
-        trace = cd0.trace;
-
-        if(trace.title.text) {
-            var txt = fullLayout.meta ?
-                Lib.templateString(trace.title.text, {meta: fullLayout.meta}) :
-                trace.title.text;
-
-            var dummyTitle = Drawing.tester.append('text')
-              .attr('data-notex', 1)
-              .text(txt)
-              .call(Drawing.font, trace.title.font)
-              .call(svgTextUtils.convertToTspans, gd);
-            var bBox = Drawing.bBox(dummyTitle.node(), true);
-            cd0.titleBox = {
-                width: bBox.width,
-                height: bBox.height,
-            };
-            dummyTitle.remove();
-        }
-    }
-}
-
 function transformInsideText(textBB, pt, cd0) {
     var textDiameter = Math.sqrt(textBB.width * textBB.width + textBB.height * textBB.height);
-    var textAspect = textBB.width / textBB.height;
     var r = cd0.r || pt.rpx1;
 
-    // max size text can be inserted inside without rotating it
-    // this inscribes the text rectangle in a circle, which is then inscribed
-    // in the slice, so it will be an underestimate, which some day we may want
-    // to improve so this case can get more use
     var transform = {
         scale: r * 2 / textDiameter,
 
-        // and the center position and rotation in this case
-        rCenter: 1,
         rotate: 0
     };
 
-    if(transform.scale >= 1) return transform;
-
-    // max size if text is rotated radially
-    var Qr = textAspect / 2;
-    var maxHalfHeightRotRadial = r * Math.min(
-        1 / (Math.sqrt(Qr * Qr + 0.5) + Qr),
-        0
-    );
-    var radialTransform = {
-        scale: maxHalfHeightRotRadial * 2 / textBB.height,
-        rCenter: Math.cos(maxHalfHeightRotRadial / r) -
-            maxHalfHeightRotRadial * textAspect / r,
-        rotate: 0
-    };
-
-    // max size if text is rotated tangentially
-    var aspectInv = 1 / textAspect;
-    var Qt = aspectInv / 2;
-    var maxHalfWidthTangential = r * Math.min(
-        1 / (Math.sqrt(Qt * Qt + 0.5) + Qt),
-        0
-    );
-    var tangentialTransform = {
-        scale: maxHalfWidthTangential * 2 / textBB.width,
-        rCenter: Math.cos(maxHalfWidthTangential / r) -
-            maxHalfWidthTangential / textAspect / r,
-        rotate: 0
-    };
-    // if we need a rotated transform, pick the biggest one
-    // even if both are bigger than 1
-    var rotatedTransform = tangentialTransform.scale > radialTransform.scale ?
-            tangentialTransform : radialTransform;
-
-    if(transform.scale < 1 && rotatedTransform.scale > transform.scale) return rotatedTransform;
     return transform;
 }
 
@@ -550,138 +379,12 @@ function transformOutsideText(textBB, pt) {
 
     return {
         scale: 1,
-        rCenter: 1,
+
         rotate: 0,
         x: dx + Math.abs(dy) * (dx > 0 ? 1 : -1) / 2,
         y: dy / (1 + x * x / (y * y)),
         outside: true
     };
-}
-
-function positionTitleInside(cd0) {
-    var textDiameter =
-        Math.sqrt(cd0.titleBox.width * cd0.titleBox.width + cd0.titleBox.height * cd0.titleBox.height);
-    return {
-        x: cd0.cx,
-        y: cd0.cy,
-        scale: cd0.trace.hole * cd0.r * 2 / textDiameter,
-        tx: 0,
-        ty: - cd0.titleBox.height / 2 + cd0.trace.title.font.size
-    };
-}
-
-function positionTitleOutside(cd0, plotSize) {
-    var scaleX = 1;
-    var scaleY = 1;
-    var maxWidth;
-
-    var trace = cd0.trace;
-    // position of the baseline point of the text box in the plot, before scaling.
-    // we anchored the text in the middle, so the baseline is on the bottom middle
-    // of the first line of text.
-    var topMiddle = {
-        x: cd0.cx,
-        y: cd0.cy
-    };
-    // relative translation of the text box after scaling
-    var translate = {
-        tx: 0,
-        ty: 0
-    };
-
-    // we reason below as if the baseline is the top middle point of the text box.
-    // so we must add the font size to approximate the y-coord. of the top.
-    // note that this correction must happen after scaling.
-    translate.ty += trace.title.font.size;
-
-    if(trace.title.position.indexOf('top') !== -1) {
-        topMiddle.y -= cd0.r;
-        translate.ty -= cd0.titleBox.height;
-    } else if(trace.title.position.indexOf('bottom') !== -1) {
-        topMiddle.y += cd0.r;
-    }
-
-    if(trace.title.position.indexOf('left') !== -1) {
-        // we start the text at the left edge of the pie
-        maxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]) / 2 + cd0.r;
-        topMiddle.x -= cd0.r;
-        translate.tx += cd0.titleBox.width / 2;
-    } else if(trace.title.position.indexOf('center') !== -1) {
-        maxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]);
-    } else if(trace.title.position.indexOf('right') !== -1) {
-        maxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]) / 2 + cd0.r;
-        topMiddle.x += cd0.r;
-        translate.tx -= cd0.titleBox.width / 2;
-    }
-    scaleX = maxWidth / cd0.titleBox.width;
-    scaleY = getTitleSpace(cd0, plotSize) / cd0.titleBox.height;
-    return {
-        x: topMiddle.x,
-        y: topMiddle.y,
-        scale: Math.min(scaleX, scaleY),
-        tx: translate.tx,
-        ty: translate.ty
-    };
-}
-
-function getTitleSpace(cd0, plotSize) {
-    var trace = cd0.trace;
-    var pieBoxHeight = plotSize.h * (trace.domain.y[1] - trace.domain.y[0]);
-    // use at most half of the plot for the title
-    return Math.min(cd0.titleBox.height, pieBoxHeight / 2);
-}
-
-function scaleFunnelareas(cdModule, plotSize) {
-    var scaleGroups = [];
-
-    var pieBoxWidth, pieBoxHeight, i, j, cd0, trace,
-        scaleGroup, minPxPerValUnit;
-
-    // first figure out the center and maximum radius for each pie
-    for(i = 0; i < cdModule.length; i++) {
-        cd0 = cdModule[i][0];
-        trace = cd0.trace;
-
-        pieBoxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]);
-        pieBoxHeight = plotSize.h * (trace.domain.y[1] - trace.domain.y[0]);
-        // leave some space for the title, if it will be displayed outside
-        if(trace.title.text && trace.title.position !== 'middle center') {
-            pieBoxHeight -= getTitleSpace(cd0, plotSize);
-        }
-
-        cd0.r = Math.min(pieBoxWidth, pieBoxHeight) / 2;
-
-        cd0.cx = plotSize.l + plotSize.w * (trace.domain.x[1] + trace.domain.x[0]) / 2;
-        cd0.cy = plotSize.t + plotSize.h * (1 - trace.domain.y[0]) - pieBoxHeight / 2;
-        if(trace.title.text && trace.title.position.indexOf('bottom') !== -1) {
-            cd0.cy -= getTitleSpace(cd0, plotSize);
-        }
-
-        if(trace.scalegroup && scaleGroups.indexOf(trace.scalegroup) === -1) {
-            scaleGroups.push(trace.scalegroup);
-        }
-    }
-
-    // Then scale any pies that are grouped
-    for(j = 0; j < scaleGroups.length; j++) {
-        minPxPerValUnit = Infinity;
-        scaleGroup = scaleGroups[j];
-
-        for(i = 0; i < cdModule.length; i++) {
-            cd0 = cdModule[i][0];
-            if(cd0.trace.scalegroup === scaleGroup) {
-                minPxPerValUnit = Math.min(minPxPerValUnit,
-                    cd0.r * cd0.r / cd0.vTotal);
-            }
-        }
-
-        for(i = 0; i < cdModule.length; i++) {
-            cd0 = cdModule[i][0];
-            if(cd0.trace.scalegroup === scaleGroup) {
-                cd0.r = Math.sqrt(minPxPerValUnit * cd0.vTotal);
-            }
-        }
-    }
 }
 
 function setCoords(cd) {

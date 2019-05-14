@@ -439,17 +439,20 @@ function attachFxHandlers(sliceTop, gd, cd) {
 }
 
 function determineOutsideTextFont(trace, pt, layoutFont) {
-    var color = helpers.castOption(trace.outsidetextfont.color, pt.pts) ||
-      helpers.castOption(trace.textfont.color, pt.pts) ||
-      layoutFont.color;
+    var color =
+        helpers.castOption(trace.outsidetextfont.color, pt.pts) ||
+        helpers.castOption(trace.textfont.color, pt.pts) ||
+        layoutFont.color;
 
-    var family = helpers.castOption(trace.outsidetextfont.family, pt.pts) ||
-      helpers.castOption(trace.textfont.family, pt.pts) ||
-      layoutFont.family;
+    var family =
+        helpers.castOption(trace.outsidetextfont.family, pt.pts) ||
+        helpers.castOption(trace.textfont.family, pt.pts) ||
+        layoutFont.family;
 
-    var size = helpers.castOption(trace.outsidetextfont.size, pt.pts) ||
-      helpers.castOption(trace.textfont.size, pt.pts) ||
-      layoutFont.size;
+    var size =
+        helpers.castOption(trace.outsidetextfont.size, pt.pts) ||
+        helpers.castOption(trace.textfont.size, pt.pts) ||
+        layoutFont.size;
 
     return {
         color: color,
@@ -468,13 +471,15 @@ function determineInsideTextFont(trace, pt, layoutFont) {
         customColor = helpers.castOption(trace._input.textfont.color, pt.pts);
     }
 
-    var family = helpers.castOption(trace.insidetextfont.family, pt.pts) ||
-      helpers.castOption(trace.textfont.family, pt.pts) ||
-      layoutFont.family;
+    var family =
+        helpers.castOption(trace.insidetextfont.family, pt.pts) ||
+        helpers.castOption(trace.textfont.family, pt.pts) ||
+        layoutFont.family;
 
-    var size = helpers.castOption(trace.insidetextfont.size, pt.pts) ||
-      helpers.castOption(trace.textfont.size, pt.pts) ||
-      layoutFont.size;
+    var size =
+        helpers.castOption(trace.insidetextfont.size, pt.pts) ||
+        helpers.castOption(trace.textfont.size, pt.pts) ||
+        layoutFont.size;
 
     return {
         color: customColor || Color.contrast(pt.color),
@@ -669,7 +674,7 @@ function getTitleSpace(cd0, plotSize) {
 }
 
 function getMaxPull(trace) {
-    var maxPull = trace.pull;
+    var maxPull = trace.pull || 0;
     var j;
     if(Array.isArray(maxPull)) {
         maxPull = 0;
@@ -893,5 +898,14 @@ function setCoords(cd) {
 
 module.exports = {
     plot: plot,
-    transformInsideText: transformInsideText
+    transformInsideText: transformInsideText,
+
+    positionTitleInside: positionTitleInside,
+    positionTitleOutside: positionTitleOutside,
+
+    determineInsideTextFont: determineInsideTextFont,
+    determineOutsideTextFont: determineOutsideTextFont,
+
+    prerenderTitles: prerenderTitles,
+    scalePies: scalePies
 };
