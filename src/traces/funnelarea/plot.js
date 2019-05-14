@@ -1,3 +1,10 @@
+/**
+* Copyright 2012-2019, Plotly, Inc.
+* All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
 
 'use strict';
 
@@ -309,20 +316,42 @@ function attachFxHandlers(sliceTop, gd, cd) {
             var hoverCenterX = cx + pt.pxmid[0];
             var hoverCenterY = cy + pt.pxmid[1];
             var separators = fullLayout2.separators;
-            var thisText = [];
+            var text = [];
+            var tx;
 
-            if(hoverinfo && hoverinfo.indexOf('label') !== -1) thisText.push(pt.label);
+            if(hoverinfo && hoverinfo.indexOf('label') !== -1) text.push(pt.label);
+
             pt.text = helpers.castOption(trace2.hovertext || trace2.text, pt.pts);
             if(hoverinfo && hoverinfo.indexOf('text') !== -1) {
-                var tx = pt.text;
-                if(Lib.isValidTextValue(tx)) thisText.push(tx);
+                tx = pt.text;
+                if(Lib.isValidTextValue(tx)) text.push(tx);
             }
+
             pt.value = pt.v;
             pt.valueLabel = helpers.formatPieValue(pt.v, separators);
-            if(hoverinfo && hoverinfo.indexOf('value') !== -1) thisText.push(pt.valueLabel);
-            pt.percent = pt.v / cd0.vTotal;
-            pt.percentLabel = helpers.formatPiePercent(pt.percent, separators);
-            if(hoverinfo && hoverinfo.indexOf('percent') !== -1) thisText.push(pt.percentLabel);
+            if(hoverinfo && hoverinfo.indexOf('value') !== -1) text.push(pt.valueLabel);
+
+            var nPercent = 0;
+            if(hoverinfo && hoverinfo.indexOf('percent initial') !== -1) nPercent++;
+            if(hoverinfo && hoverinfo.indexOf('percent total') !== -1) nPercent++;
+
+            var hasMultiplePercents = nPercent > 1;
+
+            pt.percentInitial = pt.v / cd0.vInitial;
+            pt.percentInitialLabel = helpers.formatPiePercent(pt.percentInitial, separators);
+            if(hoverinfo && hoverinfo.indexOf('percent initial') !== -1) {
+                tx = pt.percentInitialLabel;
+                if(hasMultiplePercents) tx += ' of initial';
+                text.push(tx);
+            }
+
+            pt.percentTotal = pt.v / cd0.vTotal;
+            pt.percentTotalLabel = helpers.formatPiePercent(pt.percentTotal, separators);
+            if(hoverinfo && hoverinfo.indexOf('percent total') !== -1) {
+                tx = pt.percentTotalLabel;
+                if(hasMultiplePercents) tx += ' of total';
+                text.push(tx);
+            }
 
             var hoverLabel = trace2.hoverlabel;
             var hoverFont = hoverLabel.font;
@@ -332,7 +361,7 @@ function attachFxHandlers(sliceTop, gd, cd) {
                 x0: hoverCenterX - cd0.r,
                 x1: hoverCenterX + cd0.r,
                 y: hoverCenterY,
-                text: thisText.join('<br>'),
+                text: text.join('<br>'),
                 name: (trace2.hovertemplate || hoverinfo.indexOf('name') !== -1) ? trace2.name : undefined,
                 idealAlign: pt.pxmid[0] < 0 ? 'left' : 'right',
                 color: helpers.castOption(hoverLabel.bgcolor, pt.pts) || pt.color,

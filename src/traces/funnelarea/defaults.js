@@ -48,7 +48,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('scalegroup');
 
     var textData = coerce('text');
-    var textInfo = coerce('textinfo', Array.isArray(textData) ? 'text+percent total' : 'percent total'); // TODO: note this should be value not percent total!
+    var textInfo = coerce('textinfo', Array.isArray(textData) ? 'text+value' : 'value');
     coerce('hovertext');
     coerce('hovertemplate');
 

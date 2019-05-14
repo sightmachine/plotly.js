@@ -24,7 +24,8 @@ module.exports = function eventData(pt, trace) {
         label: pt.label,
         color: pt.color,
         value: pt.v,
-        percent: pt.percent,
+        percentInitial: pt.percentInitial,
+        percentTotal: pt.percentTotal,
         text: pt.text,
 
         // pt.v (and pt.i below) for backward compatibility

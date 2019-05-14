@@ -38,11 +38,11 @@ module.exports = {
     }),
 
     hoverinfo: extendFlat({}, plotAttrs.hoverinfo, {
-        flags: ['label', 'text', 'value', 'percent', 'name'] // TODO: edit to be percent total/initial
+        flags: ['label', 'text', 'value', 'percent initial', 'percent total', 'name']
     }),
 
     hovertemplate: hovertemplateAttrs({}, {
-        keys: ['label', 'color', 'value', 'percent', 'text'] // TODO: edit to be percent total/initial
+        keys: ['label', 'color', 'value', 'percent initial', 'percent total', 'text']
     }),
 
     textposition: pieAttrs.textposition,

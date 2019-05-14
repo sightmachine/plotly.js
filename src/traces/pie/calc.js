@@ -90,8 +90,12 @@ function calc(gd, trace) {
 
     if(trace.sort) cd.sort(function(a, b) { return b.v - a.v; });
 
-    // include the sum of all values in the first point
-    if(cd[0]) cd[0].vTotal = vTotal;
+    // include the sum and initial values in the first point
+    if(cd[0]) {
+        cd[0].vTotal = vTotal;
+        cd[0].vInitial = vInitial;
+    }
+
 
     // now insert text
     var textinfo = trace.textinfo;

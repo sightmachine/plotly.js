@@ -350,20 +350,20 @@ function attachFxHandlers(sliceTop, gd, cd) {
             var hoverCenterX = cx + pt.pxmid[0] * (1 - rInscribed);
             var hoverCenterY = cy + pt.pxmid[1] * (1 - rInscribed);
             var separators = fullLayout2.separators;
-            var thisText = [];
+            var text = [];
 
-            if(hoverinfo && hoverinfo.indexOf('label') !== -1) thisText.push(pt.label);
+            if(hoverinfo && hoverinfo.indexOf('label') !== -1) text.push(pt.label);
             pt.text = helpers.castOption(trace2.hovertext || trace2.text, pt.pts);
             if(hoverinfo && hoverinfo.indexOf('text') !== -1) {
                 var tx = pt.text;
-                if(Lib.isValidTextValue(tx)) thisText.push(tx);
+                if(Lib.isValidTextValue(tx)) text.push(tx);
             }
             pt.value = pt.v;
             pt.valueLabel = helpers.formatPieValue(pt.v, separators);
-            if(hoverinfo && hoverinfo.indexOf('value') !== -1) thisText.push(pt.valueLabel);
+            if(hoverinfo && hoverinfo.indexOf('value') !== -1) text.push(pt.valueLabel);
             pt.percent = pt.v / cd0.vTotal;
             pt.percentLabel = helpers.formatPiePercent(pt.percent, separators);
-            if(hoverinfo && hoverinfo.indexOf('percent') !== -1) thisText.push(pt.percentLabel);
+            if(hoverinfo && hoverinfo.indexOf('percent') !== -1) text.push(pt.percentLabel);
 
             var hoverLabel = trace2.hoverlabel;
             var hoverFont = hoverLabel.font;
@@ -373,7 +373,7 @@ function attachFxHandlers(sliceTop, gd, cd) {
                 x0: hoverCenterX - rInscribed * cd0.r,
                 x1: hoverCenterX + rInscribed * cd0.r,
                 y: hoverCenterY,
-                text: thisText.join('<br>'),
+                text: text.join('<br>'),
                 name: (trace2.hovertemplate || hoverinfo.indexOf('name') !== -1) ? trace2.name : undefined,
                 idealAlign: pt.pxmid[0] < 0 ? 'left' : 'right',
                 color: helpers.castOption(hoverLabel.bgcolor, pt.pts) || pt.color,
