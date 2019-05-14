@@ -17,6 +17,10 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 
 var eventData = require('./event_data');
 
+var barPlot = require('../bar/plot');
+var getTransformToMoveInsideBar = barPlot.getTransformToMoveInsideBar;
+var getTransformToMoveOutsideBar = barPlot.getTransformToMoveOutsideBar;
+
 var pieHelpers = require('../pie/helpers');
 var piePlot = require('../pie/plot');
 
@@ -92,9 +96,6 @@ module.exports = function plot(gd, cdModule) {
 
                 sliceTop.call(attachFxHandlers, gd, cd);
 
-                pt.cxFinal = cx;
-                pt.cyFinal = cy;
-
                 var shape =
                     'M' + cx + ',' + cy +
                     move(pt.TR) +
@@ -136,40 +137,34 @@ module.exports = function plot(gd, cdModule) {
                     var textBB = Drawing.bBox(sliceText.node());
                     var transform;
 
+                    var x0, x1;
+                    var y0 = Math.min(pt.BL[1], pt.BR[1]);
+                    var y1 = Math.max(pt.TL[1], pt.TR[1]);
+
                     if(textPosition === 'outside') {
-                        transform = transformOutsideText(textBB, pt);
+                        x0 = Math.min(pt.TL[0], pt.BL[0]);
+                        x1 = Math.max(pt.TR[0], pt.BR[0]);
+
+                        transform = getTransformToMoveOutsideBar(x0, x1, y0, y1, textBB, {
+                            isHorizontal: true,
+                            constrained: true,
+                            angle: 0
+                        });
                     } else {
-                        transform = transformInsideText(textBB, pt, cd0);
-                        if(textPosition === 'auto' && transform.scale < 1) {
-                            sliceText.call(Drawing.font, trace.outsidetextfont);
-                            if(trace.outsidetextfont.family !== trace.insidetextfont.family ||
-                                    trace.outsidetextfont.size !== trace.insidetextfont.size) {
-                                textBB = Drawing.bBox(sliceText.node());
-                            }
-                            transform = transformOutsideText(textBB, pt);
-                        }
-                    }
+                        x0 = Math.max(pt.TL[0], pt.BL[0]);
+                        x1 = Math.min(pt.TR[0], pt.BR[0]);
 
-                    var translateX = cx + (transform.x || 0);
-                    var translateY = cy + (transform.y || 0) + pt.pxmid[1] - textBB.height / 2;
-
-                    // save some stuff to use later ensure no labels overlap
-                    if(transform.outside) {
-                        pt.yLabelMin = translateY - textBB.height / 2;
-                        pt.yLabelMid = translateY;
-                        pt.yLabelMax = translateY + textBB.height / 2;
-                        pt.labelExtraX = 0;
-                        pt.labelExtraY = 0;
+                        transform = getTransformToMoveInsideBar(x0, x1, y0, y1, textBB, {
+                            isHorizontal: true,
+                            constrained: true,
+                            angle: 0,
+                            anchor: 'middle'
+                        });
                     }
 
                     sliceText.attr('transform',
-                        'translate(' + translateX + ',' + translateY + ')' +
-                        (transform.scale < 1 ? ('scale(' + transform.scale + ')') : '') +
-                        (transform.rotate ? ('rotate(' + transform.rotate + ')') : '') +
-                        'translate(' +
-                            (-(textBB.left + textBB.right) / 2) + ',' +
-                            (-(textBB.top + textBB.bottom) / 2) +
-                        ')');
+                        'translate(' + cx + ',' + cy + ')' + transform
+                    );
                 });
             });
 
@@ -369,37 +364,6 @@ function attachFxHandlers(sliceTop, gd, cd) {
     });
 }
 
-function transformInsideText(textBB, pt, cd0) {
-    var textDiameter = Math.sqrt(textBB.width * textBB.width + textBB.height * textBB.height);
-    var r = cd0.r;
-
-    var transform = {
-        scale: r * 2 / textDiameter,
-
-        rotate: 0
-    };
-
-    return transform;
-}
-
-function transformOutsideText(textBB, pt) {
-    var x = pt.pxmid[0];
-    var y = pt.pxmid[1];
-    var dx = textBB.width / 2;
-    var dy = textBB.height / 2;
-
-    if(x < 0) dx *= -1;
-    if(y < 0) dy *= -1;
-
-    return {
-        scale: 1,
-
-        rotate: 0,
-        x: dx + Math.abs(dy) * (dx > 0 ? 1 : -1) / 2,
-        y: dy / (1 + x * x / (y * y)),
-        outside: true
-    };
-}
 
 function setCoords(cd) {
     var sumSteps = 0;

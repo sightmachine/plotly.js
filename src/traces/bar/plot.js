@@ -6,7 +6,6 @@
 * LICENSE file in the root directory of this source tree.
 */
 
-
 'use strict';
 
 var d3 = require('d3');
@@ -332,15 +331,22 @@ function appendBarText(gd, plotinfo, bar, calcTrace, i, x0, x1, y0, y1, opts) {
             trace.constraintext === 'both' ||
             trace.constraintext === 'outside';
 
-        transform = getTransformToMoveOutsideBar(x0, x1, y0, y1, textBB,
-            isHorizontal, constrained, trace.textangle);
+        transform = getTransformToMoveOutsideBar(x0, x1, y0, y1, textBB, {
+            isHorizontal: isHorizontal,
+            constrained: constrained,
+            angle: trace.textangle
+        });
     } else {
         constrained =
             trace.constraintext === 'both' ||
             trace.constraintext === 'inside';
 
-        transform = getTransformToMoveInsideBar(x0, x1, y0, y1, textBB,
-            isHorizontal, constrained, trace.textangle, trace.insidetextanchor);
+        transform = getTransformToMoveInsideBar(x0, x1, y0, y1, textBB, {
+            isHorizontal: isHorizontal,
+            constrained: constrained,
+            angle: trace.textangle,
+            anchor: trace.insidetextanchor
+        });
     }
 
     textSelection.attr('transform', transform);
@@ -350,7 +356,12 @@ function getRotationFromAngle(angle) {
     return (angle === 'auto') ? 0 : angle;
 }
 
-function getTransformToMoveInsideBar(x0, x1, y0, y1, textBB, isHorizontal, constrained, angle, anchor) {
+function getTransformToMoveInsideBar(x0, x1, y0, y1, textBB, opts) {
+    var isHorizontal = !!opts.isHorizontal;
+    var constrained = !!opts.constrained;
+    var angle = opts.angle || 0;
+    var anchor = opts.anchor || 0;
+
     var textWidth = textBB.width;
     var textHeight = textBB.height;
     var lx = Math.abs(x1 - x0);
@@ -423,7 +434,11 @@ function getTransformToMoveInsideBar(x0, x1, y0, y1, textBB, isHorizontal, const
     return getTransform(textX, textY, targetX, targetY, scale, rotation);
 }
 
-function getTransformToMoveOutsideBar(x0, x1, y0, y1, textBB, isHorizontal, constrained, angle) {
+function getTransformToMoveOutsideBar(x0, x1, y0, y1, textBB, opts) {
+    var isHorizontal = !!opts.isHorizontal;
+    var constrained = !!opts.constrained;
+    var angle = opts.angle || 0;
+
     var textWidth = textBB.width;
     var textHeight = textBB.height;
     var lx = Math.abs(x1 - x0);
