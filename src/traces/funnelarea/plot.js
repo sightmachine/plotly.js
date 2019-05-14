@@ -29,6 +29,17 @@ var determineOutsideTextFont = piePlot.determineOutsideTextFont;
 var prerenderTitles = piePlot.prerenderTitles;
 var scalePies = piePlot.scalePies;
 
+function move(pos) {
+    return 'm' + pos[0] + ',' + pos[1];
+}
+
+function line(start, finish) {
+    var dx = finish[0] - start[0];
+    var dy = finish[1] - start[1];
+
+    return 'l' + dx + ',' + dy;
+}
+
 module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
@@ -84,11 +95,17 @@ module.exports = function plot(gd, cdModule) {
                 pt.cxFinal = cx;
                 pt.cyFinal = cy;
 
-                slicePath.attr('d',
+                var shape =
                     'M' + cx + ',' + cy +
-                    'l' + pt.px0[0] + ',' + pt.px0[1] +
-                    'l' + (pt.px1[0] - pt.px0[0]) + ',' + (pt.px1[1] - pt.px0[1]) +
-                    'Z');
+                    move(pt.TR) +
+                    line(pt.TR, pt.BR) +
+                    line(pt.BR, pt.BL) +
+                    line(pt.BL, pt.TL) +
+                    'Z';
+
+                console.log(shape);
+
+                slicePath.attr('d', shape);
 
                 // add text
                 var textPosition = pieHelpers.castOption(trace.textposition, pt.pts);
@@ -287,8 +304,7 @@ function attachFxHandlers(sliceTop, gd, cd) {
 
             Fx.loneHover({
                 trace: trace,
-                x0: hoverCenterX - cd0.r,
-                x1: hoverCenterX + cd0.r,
+                x: hoverCenterX,
                 y: hoverCenterY,
                 text: text.join('<br>'),
                 name: (trace2.hovertemplate || hoverinfo.indexOf('name') !== -1) ? trace2.name : undefined,
@@ -357,7 +373,7 @@ function attachFxHandlers(sliceTop, gd, cd) {
 
 function transformInsideText(textBB, pt, cd0) {
     var textDiameter = Math.sqrt(textBB.width * textBB.width + textBB.height * textBB.height);
-    var r = cd0.r || pt.rpx1;
+    var r = cd0.r;
 
     var transform = {
         scale: r * 2 / textDiameter,
@@ -393,8 +409,10 @@ function setCoords(cd) {
     var cd0 = cd[0];
     var totalValues = cd0.vTotal;
 
-    for(var i = cd.length - 1; i > -1; i--) {
-        var cdi = cd[i];
+    var i, cdi;
+
+    for(i = cd.length - 1; i > -1; i--) {
+        cdi = cd[i];
         if(cdi.hidden) continue;
 
         var step = cdi.v / totalValues;
@@ -403,8 +421,22 @@ function setCoords(cd) {
         var x, y;
         x = y = cd0.r * Math.sqrt(sumSteps);
 
-        cdi.px0 = [-x, -y];
-        cdi.px1 = [x, -y];
+        cdi.TL = [-x, -y];
+        cdi.TR = [x, -y];
         cdi.pxmid = [0, -y];
+    }
+
+    var prevLeft = [0, 0];
+    var prevRight = [0, 0];
+
+    for(i = cd.length - 1; i > -1; i--) {
+        cdi = cd[i];
+        if(cdi.hidden) continue;
+
+        cdi.BL = prevLeft;
+        cdi.BR = prevRight;
+
+        prevLeft = cdi.TL;
+        prevRight = cdi.TR;
     }
 }
