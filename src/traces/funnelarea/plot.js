@@ -322,8 +322,8 @@ function attachFxHandlers(sliceTop, gd, cd) {
 
             var hasMultiplePercents = nPercent > 1;
 
-            pt.percentInitial = pt.v / cd0.vInitial;
-            pt.percentInitialLabel = helpers.formatPiePercent(pt.percentInitial, separators);
+            pt.percentInitial = pt.v / cd0.v;
+            pt.percentInitialLabel = Lib.formatPercent(pt.percentInitial);
             if(hoverinfo && hoverinfo.indexOf('percent initial') !== -1) {
                 tx = pt.percentInitialLabel;
                 if(hasMultiplePercents) tx += ' of initial';
@@ -331,7 +331,7 @@ function attachFxHandlers(sliceTop, gd, cd) {
             }
 
             pt.percentTotal = pt.v / cd0.vTotal;
-            pt.percentTotalLabel = helpers.formatPiePercent(pt.percentTotal, separators);
+            pt.percentTotalLabel = Lib.formatPercent(pt.percentTotal);
             if(hoverinfo && hoverinfo.indexOf('percent total') !== -1) {
                 tx = pt.percentTotalLabel;
                 if(hasMultiplePercents) tx += ' of total';

@@ -14,6 +14,7 @@ var tinycolor = require('tinycolor2');
 
 var Color = require('../../components/color');
 var helpers = require('./helpers');
+var formatPercent = require('../../lib').formatPercent;
 var isValidTextValue = require('../../lib').isValidTextValue;
 
 var extendedColorWayList = {};
@@ -42,7 +43,6 @@ function calc(gd, trace) {
     var pullColor = makePullColorFn(fullLayout._piecolormap);
     var seriesLen = (hasVals ? vals : labels).length;
     var vTotal = 0;
-    var vInitial = 0;
 
     for(i = 0; i < seriesLen; i++) {
         var v, label, hidden;
@@ -63,10 +63,7 @@ function calc(gd, trace) {
 
             hidden = hiddenLabels.indexOf(label) !== -1;
 
-            if(!hidden) {
-                vTotal += v;
-                vInitial = v;
-            }
+            if(!hidden) vTotal += v;
 
             cd.push({
                 v: v,
@@ -90,12 +87,8 @@ function calc(gd, trace) {
 
     if(trace.sort) cd.sort(function(a, b) { return b.v - a.v; });
 
-    // include the sum and initial values in the first point
-    if(cd[0]) {
-        cd[0].vTotal = vTotal;
-        cd[0].vInitial = vInitial;
-    }
-
+    // include the sum of all values in the first point
+    if(cd[0]) cd[0].vTotal = vTotal;
 
     // now insert text
     var textinfo = trace.textinfo;
@@ -127,8 +120,8 @@ function calc(gd, trace) {
             if(isPie && hasPercent) text.push(helpers.formatPiePercent(pt.v / vTotal, separators));
 
             if(isFunnelarea) {
-                if(hasPercentInitial) text.push(helpers.formatPiePercent(pt.v / vInitial, separators));
-                if(hasPercentTotal) text.push(helpers.formatPiePercent(pt.v / vTotal, separators));
+                if(hasPercentInitial) text.push(formatPercent(pt.v / cd[0].v));
+                if(hasPercentTotal) text.push(formatPercent(pt.v / vTotal));
             }
 
             pt.text = text.join('<br>');

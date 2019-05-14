@@ -563,25 +563,21 @@ function calcTextinfo(calcTrace, index, xa, ya) {
         var hasMultiplePercents = nPercent > 1;
 
         if(hasFlag('percent initial')) {
-            tx = formatPercent(cdi.begR);
+            tx = Lib.formatPercent(cdi.begR);
             if(hasMultiplePercents) tx += ' of initial';
             text.push(tx);
         }
         if(hasFlag('percent previous')) {
-            tx = formatPercent(cdi.difR);
+            tx = Lib.formatPercent(cdi.difR);
             if(hasMultiplePercents) tx += ' of previous';
             text.push(tx);
         }
         if(hasFlag('percent total')) {
-            tx = formatPercent(cdi.sumR);
+            tx = Lib.formatPercent(cdi.sumR);
             if(hasMultiplePercents) tx += ' of total';
             text.push(tx);
         }
     }
 
     return text.join('<br>');
-}
-
-function formatPercent(ratio) {
-    return Math.round(100 * ratio) + '%';
 }
