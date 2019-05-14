@@ -19,13 +19,6 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 var helpers = require('../pie/helpers');
 var eventData = require('./event_data');
 
-function line(start, finish) {
-    var dx = finish[0] - start[0];
-    var dy = finish[1] - start[1];
-
-    return 'l' + dx + ',' + dy;
-}
-
 module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
@@ -92,7 +85,7 @@ module.exports = function plot(gd, cdModule) {
                 slicePath.attr('d',
                     'M' + cx + ',' + cy +
                     'l' + pt.px0[0] + ',' + pt.px0[1] +
-                    line(pt.px0, pt.px1) +
+                    'l' + (pt.px1[0] - pt.px0[0]) + ',' + (pt.px1[1] - pt.px0[1]) +
                     'Z');
 
                 // add text
