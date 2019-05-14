@@ -55,7 +55,5 @@ module.exports = {
 
     domain: domainAttrs({name: 'funnelarea', trace: true, editType: 'calc'}),
 
-    sort: pieAttrs.sort,
-
-    pull: pieAttrs.pull // TODO: we may remove this?
+    sort: pieAttrs.sort
 };

@@ -71,14 +71,6 @@ module.exports = function plot(gd, cdModule) {
 
                 sliceTop.call(attachFxHandlers, gd, cd);
 
-                if(trace.pull) {
-                    var pull = +helpers.castOption(trace.pull, pt.pts) || 0;
-                    if(pull > 0) {
-                        cx += pull * pt.pxmid[0];
-                        cy += pull * pt.pxmid[1];
-                    }
-                }
-
                 pt.cxFinal = cx;
                 pt.cyFinal = cy;
 
@@ -581,7 +573,7 @@ function positionTitleInside(cd0) {
 function positionTitleOutside(cd0, plotSize) {
     var scaleX = 1;
     var scaleY = 1;
-    var maxWidth, maxPull;
+    var maxWidth;
 
     var trace = cd0.trace;
     // position of the baseline point of the text box in the plot, before scaling.
@@ -601,25 +593,24 @@ function positionTitleOutside(cd0, plotSize) {
     // so we must add the font size to approximate the y-coord. of the top.
     // note that this correction must happen after scaling.
     translate.ty += trace.title.font.size;
-    maxPull = getMaxPull(trace);
 
     if(trace.title.position.indexOf('top') !== -1) {
-        topMiddle.y -= (1 + maxPull) * cd0.r;
+        topMiddle.y -= cd0.r;
         translate.ty -= cd0.titleBox.height;
     } else if(trace.title.position.indexOf('bottom') !== -1) {
-        topMiddle.y += (1 + maxPull) * cd0.r;
+        topMiddle.y += cd0.r;
     }
 
     if(trace.title.position.indexOf('left') !== -1) {
         // we start the text at the left edge of the pie
         maxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]) / 2 + cd0.r;
-        topMiddle.x -= (1 + maxPull) * cd0.r;
+        topMiddle.x -= cd0.r;
         translate.tx += cd0.titleBox.width / 2;
     } else if(trace.title.position.indexOf('center') !== -1) {
         maxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]);
     } else if(trace.title.position.indexOf('right') !== -1) {
         maxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]) / 2 + cd0.r;
-        topMiddle.x += (1 + maxPull) * cd0.r;
+        topMiddle.x += cd0.r;
         translate.tx -= cd0.titleBox.width / 2;
     }
     scaleX = maxWidth / cd0.titleBox.width;
@@ -640,23 +631,11 @@ function getTitleSpace(cd0, plotSize) {
     return Math.min(cd0.titleBox.height, pieBoxHeight / 2);
 }
 
-function getMaxPull(trace) {
-    var maxPull = trace.pull;
-    var j;
-    if(Array.isArray(maxPull)) {
-        maxPull = 0;
-        for(j = 0; j < trace.pull.length; j++) {
-            if(trace.pull[j] > maxPull) maxPull = trace.pull[j];
-        }
-    }
-    return maxPull;
-}
-
 function scaleFunnelareas(cdModule, plotSize) {
     var scaleGroups = [];
 
     var pieBoxWidth, pieBoxHeight, i, j, cd0, trace,
-        maxPull, scaleGroup, minPxPerValUnit;
+        scaleGroup, minPxPerValUnit;
 
     // first figure out the center and maximum radius for each pie
     for(i = 0; i < cdModule.length; i++) {
@@ -670,9 +649,7 @@ function scaleFunnelareas(cdModule, plotSize) {
             pieBoxHeight -= getTitleSpace(cd0, plotSize);
         }
 
-        maxPull = getMaxPull(trace);
-
-        cd0.r = Math.min(pieBoxWidth, pieBoxHeight) / (2 + 2 * maxPull);
+        cd0.r = Math.min(pieBoxWidth, pieBoxHeight) / 2;
 
         cd0.cx = plotSize.l + plotSize.w * (trace.domain.x[1] + trace.domain.x[0]) / 2;
         cd0.cy = plotSize.t + plotSize.h * (1 - trace.domain.y[0]) - pieBoxHeight / 2;
