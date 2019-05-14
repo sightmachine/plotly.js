@@ -50,7 +50,7 @@ function getXY(di, xa, ya, isHorizontal) {
     return isHorizontal ? [s, p] : [p, s];
 }
 
-module.exports = function plot(gd, plotinfo, cdModule, traceLayer, opts) {
+function plot(gd, plotinfo, cdModule, traceLayer, opts) {
     var xa = plotinfo.xaxis;
     var ya = plotinfo.yaxis;
     var fullLayout = gd._fullLayout;
@@ -188,7 +188,7 @@ module.exports = function plot(gd, plotinfo, cdModule, traceLayer, opts) {
 
     // error bars are on the top
     Registry.getComponentMethod('errorbars', 'plot')(gd, bartraces, plotinfo);
-};
+}
 
 function appendBarText(gd, plotinfo, bar, calcTrace, i, x0, x1, y0, y1, opts) {
     var xa = plotinfo.xaxis;
@@ -581,3 +581,9 @@ function calcTextinfo(calcTrace, index, xa, ya) {
 
     return text.join('<br>');
 }
+
+module.exports = {
+    plot: plot,
+    getTransformToMoveInsideBar: getTransformToMoveInsideBar,
+    getTransformToMoveOutsideBar: getTransformToMoveOutsideBar
+};

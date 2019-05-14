@@ -103,8 +103,6 @@ module.exports = function plot(gd, cdModule) {
                     line(pt.BL, pt.TL) +
                     'Z';
 
-                console.log(shape);
-
                 slicePath.attr('d', shape);
 
                 // add text
