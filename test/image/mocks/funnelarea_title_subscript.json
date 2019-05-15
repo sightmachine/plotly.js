@@ -17,14 +17,7 @@
       ],
       "type": "funnelarea",
       "name": "Prime numbers",
-      "textinfo": "none",
-      "title": {
-        "text": "CO<sub>2</sub><BR>H<sub>2</sub>O",
-        "titleposition": "top center",
-        "font": {
-          "size": 14
-        }
-      }
+      "textinfo": "none"
     }
   ],
   "layout": {

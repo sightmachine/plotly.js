@@ -37,10 +37,6 @@
         ]
       },
       "textinfo": "none",
-      "title": {
-        "text": "Starry Night",
-        "position": "bottom center"
-      },
       "scalegroup": "1"
     },
     {
@@ -80,13 +76,6 @@
         ]
       },
       "textinfo": "none",
-      "title": {
-        "text": "Sunflowers",
-        "position": "top center",
-        "font": {
-          "size": 12
-        }
-      },
       "scalegroup": "2"
     },
     {
@@ -126,12 +115,6 @@
         ]
       },
       "textinfo": "none",
-      "title": {
-        "text": "Irises",
-        "font": {
-          "size": 12
-        }
-      },
       "scalegroup": "2"
     },
     {
@@ -171,12 +154,6 @@
         ]
       },
       "textinfo": "none",
-      "title": {
-        "text": "The<br>Night<br>Cafe",
-        "font": {
-          "size": 50
-        }
-      },
       "scalegroup": "1"
     }
   ],

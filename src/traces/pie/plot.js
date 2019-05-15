@@ -804,7 +804,7 @@ function scalePies(cdModule, plotSize) {
         pieBoxWidth = plotSize.w * (trace.domain.x[1] - trace.domain.x[0]);
         pieBoxHeight = plotSize.h * (trace.domain.y[1] - trace.domain.y[0]);
         // leave some space for the title, if it will be displayed outside
-        if(trace.title.text && trace.title.position !== 'middle center') {
+        if(trace.title && trace.title.text && trace.title.position !== 'middle center') {
             pieBoxHeight -= getTitleSpace(cd0, plotSize);
         }
 
@@ -814,7 +814,7 @@ function scalePies(cdModule, plotSize) {
 
         cd0.cx = plotSize.l + plotSize.w * (trace.domain.x[1] + trace.domain.x[0]) / 2;
         cd0.cy = plotSize.t + plotSize.h * (1 - trace.domain.y[0]) - pieBoxHeight / 2;
-        if(trace.title.text && trace.title.position.indexOf('bottom') !== -1) {
+        if(trace.title && trace.title.text && trace.title.position.indexOf('bottom') !== -1) {
             cd0.cy -= getTitleSpace(cd0, plotSize);
         }
 
@@ -900,12 +900,8 @@ module.exports = {
     plot: plot,
     transformInsideText: transformInsideText,
 
-    positionTitleInside: positionTitleInside,
-    positionTitleOutside: positionTitleOutside,
-
     determineInsideTextFont: determineInsideTextFont,
     determineOutsideTextFont: determineOutsideTextFont,
 
-    prerenderTitles: prerenderTitles,
     scalePies: scalePies
 };

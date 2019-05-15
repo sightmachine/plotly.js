@@ -24,13 +24,9 @@ var getTransformToMoveOutsideBar = barPlot.getTransformToMoveOutsideBar;
 var pieHelpers = require('../pie/helpers');
 var piePlot = require('../pie/plot');
 
-var positionTitleInside = piePlot.positionTitleInsid;
-var positionTitleOutside = piePlot.positionTitleOutside;
-
 var determineInsideTextFont = piePlot.determineInsideTextFont;
 var determineOutsideTextFont = piePlot.determineOutsideTextFont;
 
-var prerenderTitles = piePlot.prerenderTitles;
 var scalePies = piePlot.scalePies;
 
 function move(pos) {
@@ -47,7 +43,6 @@ function line(start, finish) {
 module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
 
-    prerenderTitles(cdModule, gd);
     scalePies(cdModule, fullLayout._size);
 
     Lib.makeTraceGroups(fullLayout._funnelarealayer, cdModule, 'trace').each(function(cd) {
@@ -166,47 +161,6 @@ module.exports = function plot(gd, cdModule) {
                         'translate(' + cx + ',' + cy + ')' + transform
                     );
                 });
-            });
-
-            // add the title
-            var titleTextGroup = d3.select(this).selectAll('g.titletext')
-                .data(trace.title.text ? [0] : []);
-
-            titleTextGroup.enter().append('g')
-                .classed('titletext', true);
-            titleTextGroup.exit().remove();
-
-            titleTextGroup.each(function() {
-                var titleText = Lib.ensureSingle(d3.select(this), 'text', '', function(s) {
-                    // prohibit tex interpretation as above
-                    s.attr('data-notex', 1);
-                });
-
-                var txt = fullLayout.meta ?
-                    Lib.templateString(trace.title.text, {meta: fullLayout.meta}) :
-                    trace.title.text;
-
-                titleText.text(txt)
-                    .attr({
-                        'class': 'titletext',
-                        transform: '',
-                        'text-anchor': 'middle',
-                    })
-                .call(Drawing.font, trace.title.font)
-                .call(svgTextUtils.convertToTspans, gd);
-
-                var transform;
-
-                if(trace.title.position === 'middle center') {
-                    transform = positionTitleInside(cd0);
-                } else {
-                    transform = positionTitleOutside(cd0, fullLayout._size);
-                }
-
-                titleText.attr('transform',
-                    'translate(' + transform.x + ',' + transform.y + ')' +
-                    (transform.scale < 1 ? ('scale(' + transform.scale + ')') : '') +
-                    'translate(' + transform.tx + ',' + transform.ty + ')');
             });
         });
     });

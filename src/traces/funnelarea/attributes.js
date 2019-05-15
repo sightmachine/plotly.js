@@ -53,8 +53,6 @@ module.exports = {
     insidetextfont: pieAttrs.insidetextfont,
     outsidetextfont: pieAttrs.outsidetextfont,
 
-    title: pieAttrs.title, // TODO: default title.position to 'top center'
-
     domain: domainAttrs({name: 'funnelarea', trace: true, editType: 'calc'}),
 
     sort: pieAttrs.sort,

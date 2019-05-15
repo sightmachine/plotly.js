@@ -18,7 +18,6 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
 
-    var coerceFont = Lib.coerceFont;
     var len;
 
     var vals = coerce('values');
@@ -65,12 +64,6 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     }
 
     handleDomainDefaults(traceOut, layout, coerce);
-
-    var title = coerce('title.text');
-    if(title) {
-        coerce('title.position', 'top center');
-        coerceFont(coerce, 'title.font', layout.font);
-    }
 
     coerce('sort');
     coerce('angle');

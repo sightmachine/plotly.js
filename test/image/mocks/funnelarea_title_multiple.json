@@ -19,10 +19,6 @@
       ],
       "type": "funnelarea",
       "name": "Year 2013",
-      "title": {
-        "text": "Year<br>2013",
-        "position": "top left"
-      },
       "domain": {
         "x": [
           0,
@@ -55,10 +51,6 @@
       ],
       "type": "funnelarea",
       "name": "Year 2014",
-      "title": {
-        "text": "Year<br>2014",
-        "position": "top right"
-      },
       "domain": {
         "x": [
           0.51,
@@ -91,10 +83,6 @@
       ],
       "type": "funnelarea",
       "name": "Year 2015",
-      "title": {
-        "text": "Year<br>2015",
-        "position": "bottom left"
-      },
       "domain": {
         "x": [
           0,
@@ -127,10 +115,6 @@
       ],
       "type": "funnelarea",
       "name": "Year 2016",
-      "title": {
-        "text": "Year<br>2016",
-        "position": "bottom right"
-      },
       "domain": {
         "x": [
           0.51,

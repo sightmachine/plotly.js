@@ -36,11 +36,7 @@
           0.49
         ]
       },
-      "textinfo": "none",
-      "title": {
-        "text": "Starry Night (following a well-known painting by Vincent Van Gogh)",
-        "position": "bottom left"
-      }
+      "textinfo": "none"
     },
     {
       "values": [
@@ -78,14 +74,7 @@
           0.49
         ]
       },
-      "textinfo": "none",
-      "title": {
-        "text": "Sunflowers",
-        "position": "top right",
-        "font": {
-          "size": 14
-        }
-      }
+      "textinfo": "none"
     },
     {
       "values": [
@@ -123,13 +112,7 @@
           1
         ]
       },
-      "textinfo": "none",
-      "title": {
-        "text": "Irises",
-        "font": {
-          "size": 14
-        }
-      }
+      "textinfo": "none"
     },
     {
       "values": [
@@ -167,13 +150,7 @@
           1
         ]
       },
-      "textinfo": "none",
-      "title": {
-        "text": "The<br>Night<br>Cafe",
-        "font": {
-          "size": 50
-        }
-      }
+      "textinfo": "none"
     }
   ],
   "layout": {
