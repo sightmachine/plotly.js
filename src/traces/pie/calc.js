@@ -20,6 +20,9 @@ var isValidTextValue = require('../../lib').isValidTextValue;
 var extendedColorWayList = {};
 
 function calc(gd, trace) {
+    var isPie = (trace.type === 'pie');
+    var isFunnelarea = (trace.type === 'funnelarea');
+
     var cd = [];
 
     var fullLayout = gd._fullLayout;
@@ -40,7 +43,7 @@ function calc(gd, trace) {
     }
 
     var allThisTraceLabels = {};
-    var pullColor = makePullColorFn(fullLayout._piecolormap);
+    var pullColor = makePullColorFn(fullLayout['_' + trace.type + 'colormap']);
     var seriesLen = (hasVals ? vals : labels).length;
     var vTotal = 0;
 
@@ -51,6 +54,8 @@ function calc(gd, trace) {
             if(!isNumeric(v)) continue;
             v = +v;
             if(v < 0) continue;
+
+            if(isFunnelarea && v === 0) continue;
         } else v = 1;
 
         label = labels[i];
@@ -101,9 +106,6 @@ function calc(gd, trace) {
         var hasPercent = hasFlag('percent'); // i.e. percent of total for pie
         var hasPercentInitial = hasFlag('percent initial');
         var hasPercentTotal = hasFlag('percent total');
-
-        var isPie = (trace.type === 'pie');
-        var isFunnelarea = (trace.type === 'funnelarea');
 
         var separators = fullLayout.separators;
         var text;
@@ -193,21 +195,21 @@ function crossTraceCalc(gd, plotinfo) { // TODO: should we name the second argum
 function generateExtendedColors(colorList, extendedColorWays) {
     var i;
     var colorString = JSON.stringify(colorList);
-    var pieColors = extendedColorWays[colorString];
-    if(!pieColors) {
-        pieColors = colorList.slice();
+    var colors = extendedColorWays[colorString];
+    if(!colors) {
+        colors = colorList.slice();
 
         for(i = 0; i < colorList.length; i++) {
-            pieColors.push(tinycolor(colorList[i]).lighten(20).toHexString());
+            colors.push(tinycolor(colorList[i]).lighten(20).toHexString());
         }
 
         for(i = 0; i < colorList.length; i++) {
-            pieColors.push(tinycolor(colorList[i]).darken(20).toHexString());
+            colors.push(tinycolor(colorList[i]).darken(20).toHexString());
         }
-        extendedColorWays[colorString] = pieColors;
+        extendedColorWays[colorString] = colors;
     }
 
-    return pieColors;
+    return colors;
 }
 
 module.exports = {
