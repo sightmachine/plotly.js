@@ -22,7 +22,23 @@ module.exports = {
     label0: pieAttrs.label0,
     dlabel: pieAttrs.dlabel,
     values: pieAttrs.values,
-    marker: pieAttrs.marker,
+    marker: extendFlat({}, pieAttrs.marker, {
+        line: extendFlat({}, pieAttrs.marker.line, {
+            width: extendFlat({}, pieAttrs.marker.line.width, {
+                arrayOk: false,
+                dflt: 1
+            }),
+            color: extendFlat({}, pieAttrs.marker.line.color, {
+                arrayOk: false,
+                dflt: null,
+                description: [
+                    'Sets the color of the line enclosing each sector.',
+                    'Defaults to the `paper_bgcolor` value.'
+                ].join(' ')
+            })
+        })
+    }),
+
     text: pieAttrs.text,
     hovertext: pieAttrs.hovertext,
 

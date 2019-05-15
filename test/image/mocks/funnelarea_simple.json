@@ -4,7 +4,7 @@
       "marker": {
         "line": {
           "color": ["#F00", "#FF0", "#0F0", "#0FF"],
-          "width": 3
+          "width": [8, 6, 4, 2]
         }
       },
       "values": [
