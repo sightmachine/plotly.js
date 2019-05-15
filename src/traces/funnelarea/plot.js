@@ -324,12 +324,13 @@ function setCoords(cd) {
     var cd0 = cd[0];
     var totalValues = cd0.vTotal;
     var alpha = Math.PI * cd0.trace.angle / 360;
-    var aspectRatio = 1 / Math.tan(alpha);
+    var aspectRatio = Math.tan(alpha);
     var i, cdi;
     var sumSteps = 0;
 
-    var r = 0.5 * cd0.r / Math.cos(alpha);
-    var totalHeight = r * aspectRatio / 2;
+    var scale = (aspectRatio < 1) ? 1 : Math.pow(1 / aspectRatio, 2);
+
+    var height = scale * cd0.r;
 
     for(i = cd.length - 1; i > -1; i--) {
         cdi = cd[i];
@@ -339,16 +340,17 @@ function setCoords(cd) {
         sumSteps += step;
 
         var x, y;
-        x = r * Math.sqrt(sumSteps);
-        y = x * aspectRatio - totalHeight;
+        var q = 2 * height * Math.sqrt(sumSteps);
+        x = q * aspectRatio;
+        y = q - height;
 
         cdi.TL = [-x, -y];
         cdi.TR = [x, -y];
         cdi.pxmid = [0, -y];
     }
 
-    var prevLeft = [0, totalHeight];
-    var prevRight = [0, totalHeight];
+    var prevLeft = [0, height];
+    var prevRight = [0, height];
 
     for(i = cd.length - 1; i > -1; i--) {
         cdi = cd[i];

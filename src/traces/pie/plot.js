@@ -674,7 +674,9 @@ function getTitleSpace(cd0, plotSize) {
 }
 
 function getMaxPull(trace) {
-    var maxPull = trace.pull || 0;
+    var maxPull = trace.pull;
+    if(!maxPull) return 0;
+
     var j;
     if(Array.isArray(maxPull)) {
         maxPull = 0;
