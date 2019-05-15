@@ -158,7 +158,7 @@ module.exports = function plot(gd, cdModule) {
                             isHorizontal: true,
                             constrained: true,
                             angle: 0,
-                            anchor: 'middle'
+                            anchor: trace.insidetextanchor
                         });
                     }
 

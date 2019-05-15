@@ -8,6 +8,7 @@
 
 'use strict';
 
+var barAttrs = require('../bar/attributes');
 var pieAttrs = require('../pie/attributes');
 var plotAttrs = require('../../plots/attributes');
 var hovertemplateAttrs = require('../../components/fx/hovertemplate_attributes');
@@ -45,7 +46,8 @@ module.exports = {
         keys: ['label', 'color', 'value', 'percent initial', 'percent total', 'text']
     }),
 
-    textposition: pieAttrs.textposition,
+    textposition: extendFlat({}, barAttrs.textposition, { dflt: 'inside' }),
+    insidetextanchor: extendFlat({}, barAttrs.insidetextanchor, { dflt: 'middle' }),
 
     textfont: pieAttrs.textfont,
     insidetextfont: pieAttrs.insidetextfont,
@@ -55,5 +57,18 @@ module.exports = {
 
     domain: domainAttrs({name: 'funnelarea', trace: true, editType: 'calc'}),
 
-    sort: pieAttrs.sort
+    sort: pieAttrs.sort,
+
+    angle: {
+        valType: 'number',
+        role: 'style',
+        min: -360,
+        max: 360,
+        dflt: 0,
+        editType: 'calc',
+        description: [
+            'Instead of the first slice starting at 12 o\'clock,',
+            'rotate to some other angle.'
+        ].join(' ')
+    }
 };

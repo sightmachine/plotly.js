@@ -60,7 +60,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
             moduleHasConstrain: false,
             moduleHasCliponaxis: false,
             moduleHasTextangle: false,
-            moduleHasInsideanchor: false
+            moduleHasInsideanchor: true
         });
     }
 
