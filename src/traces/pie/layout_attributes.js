@@ -9,6 +9,17 @@
 'use strict';
 
 module.exports = {
+    hiddenlabels: {
+        valType: 'data_array',
+        role: 'info', // TODO: or style ?
+        editType: 'calc',
+        description: [
+            'hiddenlabels is the funnelarea & pie chart analog of',
+            'visible:\'legendonly\'',
+            'but it can contain many labels, and can simultaneously',
+            'hide slices from several pies/funnelarea charts'
+        ].join(' ')
+    },
     piecolorway: {
         valType: 'colorlist',
         role: 'style',

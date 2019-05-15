@@ -8,7 +8,11 @@
 
 'use strict';
 
+var hiddenlabels = require('../pie/layout_attributes').hiddenlabels;
+
 module.exports = {
+    hiddenlabels: hiddenlabels,
+
     funnelareacolorway: {
         valType: 'colorlist',
         role: 'style',
