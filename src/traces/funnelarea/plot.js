@@ -322,18 +322,34 @@ function setCoords(cd) {
     if(!cd.length) return;
 
     var cd0 = cd[0];
-    var hasNeck = cd0.trace.neck;
-    var baseRatio = cd0.trace.base;
     var totalValues = cd0.vTotal;
     var alpha = Math.PI * cd0.trace.angle / 360;
+
     var aspectRatio = Math.tan(alpha);
+
+    var baseRatio = cd0.trace.baseratio;
+    var sumSteps = baseRatio * aspectRatio;
+
+    var scale = cd0.r / aspectRatio;
+
+    function calcPos() {
+        var q = Math.sqrt(sumSteps);
+        return {
+            x: q * aspectRatio,
+            y: -q
+        };
+    }
+
+    function getPoint() {
+        var pos = calcPos();
+        return [pos.x, pos.y];
+    }
+
+    var p;
+    var allPoints = [];
+    allPoints.push(getPoint());
+
     var i, cdi;
-    var sumSteps = 0;
-
-    var scale = (aspectRatio < 1) ? 1 : Math.pow(1 / aspectRatio, 2);
-
-    var height = scale * cd0.r;
-
     for(i = cd.length - 1; i > -1; i--) {
         cdi = cd[i];
         if(cdi.hidden) continue;
@@ -341,38 +357,57 @@ function setCoords(cd) {
         var step = cdi.v / totalValues;
         sumSteps += step;
 
-        var x, y;
-        var q = 2 * height * Math.sqrt(sumSteps);
-        x = q * aspectRatio;
-        y = q - height;
-
-        cdi.TL = [-x, -y];
-        cdi.TR = [x, -y];
-        cdi.pxmid = [0, -y];
+        allPoints.push(getPoint());
     }
 
-    var prevLeft = [0, height];
-    var prevRight = [0, height];
+    var minY = Infinity;
+    var maxY = -Infinity;
+    for(i = 0; i < allPoints.length; i++) {
+        p = allPoints[i];
+        minY = Math.min(minY, p[1]);
+        maxY = Math.max(maxY, p[1]);
+    }
 
+    // center the shape
+    for(i = 0; i < allPoints.length; i++) {
+        allPoints[i][1] -= (maxY + minY) / 2;
+    }
+
+    for(i = 0; i < allPoints.length; i++) {
+        allPoints[i][0] *= scale;
+        allPoints[i][1] *= scale;
+    }
+
+    // record first position
+    p = allPoints[0];
+    var prevLeft = [-p[0], p[1]];
+    var prevRight = [p[0], p[1]];
+
+    var n = 0; // note we skip the very first point.
     for(i = cd.length - 1; i > -1; i--) {
         cdi = cd[i];
         if(cdi.hidden) continue;
 
+        n += 1;
+        var x = allPoints[n][0];
+        var y = allPoints[n][1];
+
+        cdi.TL = [-x, y];
+        cdi.TR = [x, y];
+
         cdi.BL = prevLeft;
         cdi.BR = prevRight;
+
+        cdi.pxmid = getBetween(cdi.TL, cdi.TR);
 
         prevLeft = cdi.TL;
         prevRight = cdi.TR;
     }
+}
 
-    if(hasNeck) {
-        for(i = cd.length - 1; i > -1; i--) {
-            cdi = cd[i];
-            if(cdi.hidden) continue;
-
-            cdi.BL = [cdi.TL[0], (cdi.TL[1] + cdi.BL[1]) / 2];
-            cdi.BR = [cdi.TR[0], (cdi.TR[1] + cdi.BR[1]) / 2];
-            break;
-        }
-    }
+function getBetween(a, b) {
+    return [
+        0.5 * (a[0] + b[0]),
+        0.5 * (a[1] + b[1])
+    ];
 }

@@ -85,7 +85,7 @@ module.exports = {
         ].join(' ')
     },
 
-    base: {
+    baseratio: {
         valType: 'number',
         role: 'style',
         min: 0,
@@ -94,16 +94,6 @@ module.exports = {
         editType: 'plot',
         description: [
             'Sets the base ratio to the top.'
-        ].join(' ')
-    },
-
-    neck: {
-        valType: 'boolean',
-        role: 'style',
-        dflt: false,
-        editType: 'plot',
-        description: [
-            'Enables the neck at the bottom.'
         ].join(' ')
     }
 };
