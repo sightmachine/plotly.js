@@ -322,6 +322,8 @@ function setCoords(cd) {
     if(!cd.length) return;
 
     var cd0 = cd[0];
+    var hasNeck = cd0.trace.neck;
+    var baseRatio = cd0.trace.base;
     var totalValues = cd0.vTotal;
     var alpha = Math.PI * cd0.trace.angle / 360;
     var aspectRatio = Math.tan(alpha);
@@ -363,12 +365,14 @@ function setCoords(cd) {
         prevRight = cdi.TR;
     }
 
-    for(i = cd.length - 1; i > -1; i--) {
-        cdi = cd[i];
-        if(cdi.hidden) continue;
+    if(hasNeck) {
+        for(i = cd.length - 1; i > -1; i--) {
+            cdi = cd[i];
+            if(cdi.hidden) continue;
 
-        cdi.BL = [cdi.TL[0], (cdi.TL[1] + cdi.BL[1]) / 2];
-        cdi.BR = [cdi.TR[0], (cdi.TR[1] + cdi.BR[1]) / 2];
-        break;
+            cdi.BL = [cdi.TL[0], (cdi.TL[1] + cdi.BL[1]) / 2];
+            cdi.BR = [cdi.TR[0], (cdi.TR[1] + cdi.BR[1]) / 2];
+            break;
+        }
     }
 }

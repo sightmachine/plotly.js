@@ -81,7 +81,29 @@ module.exports = {
         dflt: 60,
         editType: 'plot',
         description: [
-            'Sets the base angle.'
+            'Sets the angle.'
+        ].join(' ')
+    },
+
+    base: {
+        valType: 'number',
+        role: 'style',
+        min: 0,
+        max: 1,
+        dflt: 0.2,
+        editType: 'plot',
+        description: [
+            'Sets the base ratio to the top.'
+        ].join(' ')
+    },
+
+    neck: {
+        valType: 'boolean',
+        role: 'style',
+        dflt: false,
+        editType: 'plot',
+        description: [
+            'Enables the neck at the bottom.'
         ].join(' ')
     }
 };
