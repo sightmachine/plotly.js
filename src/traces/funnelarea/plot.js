@@ -364,14 +364,18 @@ function attachFxHandlers(sliceTop, gd, cd) {
     });
 }
 
-
 function setCoords(cd) {
-    var sumSteps = 0;
+    if(!cd.length) return;
 
     var cd0 = cd[0];
     var totalValues = cd0.vTotal;
-
+    var alpha = Math.PI * cd0.trace.angle / 360;
+    var aspectRatio = 1 / Math.tan(alpha);
     var i, cdi;
+    var sumSteps = 0;
+
+    var r = 0.5 * cd0.r / Math.cos(alpha);
+    var totalHeight = r * aspectRatio / 2;
 
     for(i = cd.length - 1; i > -1; i--) {
         cdi = cd[i];
@@ -381,15 +385,16 @@ function setCoords(cd) {
         sumSteps += step;
 
         var x, y;
-        x = y = cd0.r * Math.sqrt(sumSteps);
+        x = r * Math.sqrt(sumSteps);
+        y = x * aspectRatio - totalHeight;
 
         cdi.TL = [-x, -y];
         cdi.TR = [x, -y];
         cdi.pxmid = [0, -y];
     }
 
-    var prevLeft = [0, 0];
-    var prevRight = [0, 0];
+    var prevLeft = [0, totalHeight];
+    var prevRight = [0, totalHeight];
 
     for(i = cd.length - 1; i > -1; i--) {
         cdi = cd[i];

@@ -73,4 +73,5 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     }
 
     coerce('sort');
+    coerce('angle');
 };

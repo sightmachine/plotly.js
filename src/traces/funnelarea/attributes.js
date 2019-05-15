@@ -62,13 +62,12 @@ module.exports = {
     angle: {
         valType: 'number',
         role: 'style',
-        min: -360,
-        max: 360,
-        dflt: 0,
-        editType: 'calc',
+        min: 15,
+        max: 120,
+        dflt: 60,
+        editType: 'plot',
         description: [
-            'Instead of the first slice starting at 12 o\'clock,',
-            'rotate to some other angle.'
+            'Sets the base angle.'
         ].join(' ')
     }
 };
