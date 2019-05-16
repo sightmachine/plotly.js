@@ -3,7 +3,7 @@
         {
             "name": "pie",
             "type": "pie",
-            "labels": ["A", "B", "C", "D", "E"],
+            "labels": ["A", "B", "C", "D", "E", "F"],
             "values": [6.000006, 5.00005, 4.0004, 3.003, 2.02, 1.1],
             "text": [true, "", "0", 0, 1, null],
             "textinfo": "label+text+value",
