@@ -34,9 +34,9 @@
             }
         },
         {
-            "name": "60°",
+            "name": "60° with base 0.5",
             "angle": 60,
-            "baseratio": 1,
+            "baseratio": 0.5,
             "type": "funnelarea",
             "labels": ["A", "B", "C", "D", "E", "F"],
             "values": [6.000006, 5.00005, 4.0004, 3.003, 2.02, 1.1],
@@ -91,9 +91,9 @@
             }
         },
         {
-            "name": "30° with base 1",
+            "name": "30° with base 0.5",
             "angle": 30,
-            "baseratio": 1,
+            "baseratio": 0.5,
             "type": "funnelarea",
             "labels": ["A", "B", "C", "D", "E", "F"],
             "values": [6.000006, 5.00005, 4.0004, 3.003, 2.02, 1.1],

@@ -325,10 +325,14 @@ function setCoords(cd) {
     var alpha = Math.PI * cd0.trace.angle / 360;
 
     var aspectRatio = Math.tan(alpha);
+    var h = cd0.trace.baseratio;
+    var h2 = Math.pow(h, 2);
 
-    var baseRatio = cd0.trace.baseratio;
-    var sumSteps = baseRatio * aspectRatio;
-    var totalValues = cd0.vTotal; // * (1 + sumSteps);
+    var v1 = cd0.vTotal;
+    var v0 = v1 * h2 / (1 - h2);
+
+    var totalValues = v1;
+    var sumSteps = v0 / v1;
 
     function calcPos() {
         var q = Math.sqrt(sumSteps);
@@ -423,6 +427,7 @@ function setCoords(cd) {
     for(i = 0; i < areas.length; i++) {
         console.log(areas[i] / totalArea);
     }
+    console.log('------------------------');
 */
 }
 

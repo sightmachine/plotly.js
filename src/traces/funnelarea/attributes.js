@@ -60,7 +60,7 @@ module.exports = {
         role: 'style',
         min: 15,
         max: 120,
-        dflt: 60,
+        dflt: 45,
         editType: 'plot',
         description: [
             'Sets the angle.'
@@ -71,7 +71,8 @@ module.exports = {
         valType: 'number',
         role: 'style',
         min: 0,
-        dflt: 0.2,
+        max: 1,
+        dflt: 1 / 3,
         editType: 'plot',
         description: [
             'Sets the base ratio to the top.'

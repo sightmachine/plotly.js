@@ -3770,11 +3770,11 @@ function makePlotFramework(gd) {
     // single geo layer for the whole plot
     fullLayout._geolayer = fullLayout._paper.append('g').classed('geolayer', true);
 
-    // single pie layer for the whole plot
-    fullLayout._pielayer = fullLayout._paper.append('g').classed('pielayer', true);
-
     // single funnelarea layer for the whole plot
     fullLayout._funnelarealayer = fullLayout._paper.append('g').classed('funnelarealayer', true);
+
+    // single pie layer for the whole plot
+    fullLayout._pielayer = fullLayout._paper.append('g').classed('pielayer', true);
 
     // single sunburst layer for the whole plot
     fullLayout._sunburstlayer = fullLayout._paper.append('g').classed('sunburstlayer', true);
