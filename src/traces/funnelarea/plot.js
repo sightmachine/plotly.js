@@ -322,15 +322,13 @@ function setCoords(cd) {
     if(!cd.length) return;
 
     var cd0 = cd[0];
-    var totalValues = cd0.vTotal;
     var alpha = Math.PI * cd0.trace.angle / 360;
 
     var aspectRatio = Math.tan(alpha);
 
     var baseRatio = cd0.trace.baseratio;
     var sumSteps = baseRatio * aspectRatio;
-
-    var scale = cd0.r / aspectRatio;
+    var totalValues = cd0.vTotal; // * (1 + sumSteps);
 
     function calcPos() {
         var q = Math.sqrt(sumSteps);
@@ -373,6 +371,11 @@ function setCoords(cd) {
         allPoints[i][1] -= (maxY + minY) / 2;
     }
 
+    var lastX = allPoints[allPoints.length - 1][0];
+
+    var scale = cd0.r / lastX;
+
+    // scale the shape
     for(i = 0; i < allPoints.length; i++) {
         allPoints[i][0] *= scale;
         allPoints[i][1] *= scale;
@@ -398,12 +401,51 @@ function setCoords(cd) {
         cdi.BL = prevLeft;
         cdi.BR = prevRight;
 
-        cdi.pxmid = getBetween(cdi.TR, cdi.BL);
+        cdi.pxmid = getBetween(cdi.TR, cdi.BR);
 
         prevLeft = cdi.TL;
         prevRight = cdi.TR;
     }
+
+/* TODO: move this to jasmine test
+
+    var areas = [];
+    var totalArea = 0;
+    for(i = 0; i < cd.length; i++) {
+        cdi = cd[i];
+        if(cdi.hidden) continue;
+
+        var area = polygonArea([cdi.TR, cdi.TL, cdi.BL, cdi.BR]);
+        areas.push(area);
+        totalArea += area;
+    }
+
+    for(i = 0; i < areas.length; i++) {
+        console.log(areas[i] / totalArea);
+    }
+*/
 }
+
+/* TODO: move this to jasmine test
+
+function polygonArea(points) {
+    var s1 = 0;
+    var s2 = 0;
+    var n = points.length;
+    for(var i = 0; i < n; i++) {
+        var k = (i + 1) % n;
+        var x0 = points[i][0];
+        var y0 = points[i][1];
+        var x1 = points[k][0];
+        var y1 = points[k][1];
+
+        s1 += x0 * y1;
+        s2 += x1 * y0;
+    }
+
+    return 0.5 * Math.abs(s1 - s2);
+}
+*/
 
 function getBetween(a, b) {
     return [
