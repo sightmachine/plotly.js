@@ -64,6 +64,7 @@
         "hiddenlabels": ["B", "E"],
         "width": 800,
         "height": 800,
+        "hovermode": "closest",
         "dragmode": "pan",
         "xaxis": {
             "domain": [

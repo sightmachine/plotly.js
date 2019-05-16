@@ -89,7 +89,6 @@ module.exports = {
         valType: 'number',
         role: 'style',
         min: 0,
-        max: 1,
         dflt: 0.2,
         editType: 'plot',
         description: [

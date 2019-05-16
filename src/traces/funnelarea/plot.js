@@ -398,7 +398,7 @@ function setCoords(cd) {
         cdi.BL = prevLeft;
         cdi.BR = prevRight;
 
-        cdi.pxmid = getBetween(cdi.TL, cdi.TR);
+        cdi.pxmid = getBetween(cdi.TR, cdi.BL);
 
         prevLeft = cdi.TL;
         prevRight = cdi.TR;
