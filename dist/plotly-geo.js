@@ -26489,7 +26489,7 @@ module.exports = function draw(gd) {
                     var e = d3.event.sourceEvent;
                     if(e.type === 'touchstart') {
                         eventY0 = e.changedTouches[0].clientY;
-                        scrollBoxY0 = scrollBoxYMax - scrollBoxY; // inverted for natural-scroll
+                        scrollBoxY0 = scrollBoxY;
                     }
                 })
                 .on('drag', function() {
