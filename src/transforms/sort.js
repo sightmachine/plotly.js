@@ -136,8 +136,22 @@ function getIndices(opts, targetArray, d2c, len) {
 function getSortFunc(opts, d2c) {
     switch(opts.order) {
         case 'ascending':
-            return function(a, b) { return d2c(a.v) - d2c(b.v); };
+            return function(a, b) {
+                if(a.v === null) {
+                    return -1;
+                } else if(b.v === null) {
+                    return 1;
+                }
+                return d2c(a.v) - d2c(b.v);
+            };
         case 'descending':
-            return function(a, b) { return d2c(b.v) - d2c(a.v); };
+            return function(a, b) {
+                if(a.v === null) {
+                    return 1;
+                } else if(b.v === null) {
+                    return -1;
+                }
+                return d2c(b.v) - d2c(a.v);
+            };
     }
 }
